@@ -43,6 +43,14 @@ custom:
       "Fn::ImportValue": cas-medicap-${sls:stage}-EventBusName
 
 functions:
+  httpAvailabilityGet:
+    handler: ./src/application/functions/http-availability-get.handler
+    events:
+      - http:
+          path: /availability
+          method: get
+          cors: true
+
   eventMedicapBookingSynced:
     handler: ./src/application/functions/event-medicap-booking-synced.handler
     events:
