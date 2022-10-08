@@ -53,6 +53,7 @@ functions:
               - cas-medicap-sync
             detail-type:
               - booking-synced
+
   eventMedicapPreBookingSynced:
     handler: ./src/application/functions/event-medicap-pre-booking-synced.handler
     events:
@@ -63,6 +64,39 @@ functions:
               - cas-medicap-sync
             detail-type:
               - pre-booking-synced
+
+  eventMedicapReleaseSynced:
+    handler: ./src/application/functions/event-medicap-release-synced.handler
+    events:
+      - eventBridge:
+          eventBus: ${self:custom.cas-medicap.EventBusName}
+          pattern:
+            source:
+              - cas-medicap-sync
+            detail-type:
+              - release-synced
+
+  eventMedicapCalendarSynced:
+    handler: ./src/application/functions/event-medicap-calendar-synced.handler
+    events:
+      - eventBridge:
+          eventBus: ${self:custom.cas-medicap.EventBusName}
+          pattern:
+            source:
+              - cas-medicap-sync
+            detail-type:
+              - calendar-synced
+
+  eventMedicapExceptionSynced:
+    handler: ./src/application/functions/event-medicap-exception-synced.handler
+    events:
+      - eventBridge:
+          eventBus: ${self:custom.cas-medicap.EventBusName}
+          pattern:
+            source:
+              - cas-medicap-sync
+            detail-type:
+              - exception-synced
 
 resources:
   Resources:
