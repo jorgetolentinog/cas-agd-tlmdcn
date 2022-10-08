@@ -1,0 +1,11 @@
+{
+  "name": "cas-agd-tlmdcn-availability",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "npx serverless deploy"
+  },
+  "devDependencies": {
+    "serverless": "^3.22.0"
+  }
+}

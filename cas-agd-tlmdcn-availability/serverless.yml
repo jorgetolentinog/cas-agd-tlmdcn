@@ -1,0 +1,41 @@
+service: cas-agd-tlmdcn-availability
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  environment:
+    SERVICE_NAME: ${self:service}
+  apiGateway:
+    restApiId: ${self:custom.cas-agd-tlmdcn.ApiGatewayRestApiId}
+    restApiRootResourceId: ${self:custom.cas-agd-tlmdcn.ApiGatewayRestApiRootResourceId}
+
+custom:
+  cas-agd-tlmdcn:
+    ApiGatewayRestApiId:
+      "Fn::ImportValue": cas-agd-tlmdcn-${sls:stage}-ApiGatewayRestApiId
+    ApiGatewayRestApiRootResourceId:
+      "Fn::ImportValue": cas-agd-tlmdcn-${sls:stage}-ApiGatewayRestApiRootResourceId
+  cas-medicap:
+    EventBusName:
+      "Fn::ImportValue": cas-medicap-${sls:stage}-EventBusName
+
+functions:
+  hello:
+    handler: ./src/hello.handler
+    events:
+      - http:
+          path: /availability
+          method: get
+          cors: true
+
+  eventMedicapBookingSynced:
+    handler: ./src/event-medicap-booking-synced.handler
+    events:
+      - eventBridge:
+          eventBus: ${self:custom.cas-medicap.EventBusName}
+          pattern:
+            source:
+              - cas-medicap-sync
+            detail-type:
+              - booking-synced
