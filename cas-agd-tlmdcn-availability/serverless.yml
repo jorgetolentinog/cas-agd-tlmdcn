@@ -2,6 +2,7 @@ service: cas-agd-tlmdcn-availability
 useDotenv: true
 
 plugins:
+  - '@nearst/serverless-dynalite'
   - serverless-webpack
   - serverless-offline
 

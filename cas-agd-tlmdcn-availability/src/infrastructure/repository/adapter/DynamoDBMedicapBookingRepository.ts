@@ -12,7 +12,7 @@ export class DynamoDBMedicapBookingRepository
 
   constructor(private readonly dynamodb: DynamoDB) {}
 
-  async save(booking: MedicapBooking): Promise<void> {
+  async create(booking: MedicapBooking): Promise<void> {
     await this.dynamodb.client
       .put({
         TableName: this._table,
@@ -30,6 +30,48 @@ export class DynamoDBMedicapBookingRepository
           createdAt: booking.createdAt,
           updatedAt: booking.updatedAt,
         },
+        ConditionExpression: "attribute_not_exists(id)",
+      })
+      .promise();
+  }
+
+  async update(booking: MedicapBooking): Promise<void> {
+    const attrs = {
+      date: booking.date,
+      companyId: booking.companyId,
+      officeId: booking.officeId,
+      serviceId: booking.serviceId,
+      professionalId: booking.professionalId,
+      patientId: booking.patientId,
+      calendarId: booking.calendarId,
+      blockDurationInMinutes: booking.blockDurationInMinutes,
+      isEnabled: booking.isEnabled,
+      createdAt: booking.createdAt,
+      updatedAt: booking.updatedAt,
+    };
+
+    let updateExpression = "set ";
+    const expressionAttributeNames: Record<string, string> = {};
+    const expressionAttributeValues: Record<string, unknown> = {};
+    for (const prop in attrs) {
+      updateExpression += ` #${prop} = :${prop},`;
+      expressionAttributeNames[`#${prop}`] = prop;
+      expressionAttributeValues[`:${prop}`] = (
+        attrs as Record<string, unknown>
+      )[prop];
+    }
+    updateExpression = updateExpression.slice(0, -1);
+
+    await this.dynamodb.client
+      .update({
+        TableName: this._table,
+        Key: {
+          id: booking.id,
+        },
+        UpdateExpression: updateExpression,
+        ConditionExpression: "attribute_exists(id) and #updatedAt < :updatedAt",
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
       })
       .promise();
   }
