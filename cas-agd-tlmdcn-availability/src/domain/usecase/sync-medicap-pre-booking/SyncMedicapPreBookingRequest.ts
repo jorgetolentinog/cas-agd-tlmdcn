@@ -1,13 +1,3 @@
-export interface SyncMedicapPreBookingRequest {
-  id: string;
-  date: string;
-  companyId: string;
-  officeId: string;
-  serviceId: string;
-  professionalId: string;
-  calendarId: string;
-  blockDurationInMinutes: number;
-  isEnabled: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { MedicapPreBooking } from "@/domain/schema/MedicapPreBooking";
+
+export type SyncMedicapPreBookingRequest = MedicapPreBooking;
