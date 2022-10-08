@@ -12,11 +12,7 @@ export class SyncMedicapBooking {
   async execute(request: SyncMedicapBookingRequest) {
     const booking = await this.medicapBookingRepository.findById(request.id);
 
-    console.log("sleep", request.id, request.updatedAt);
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-
     if (booking == null) {
-      console.log("crear!!!!", request.id, request.updatedAt);
       await this.medicapBookingRepository.create({
         id: request.id,
         date: request.date,
@@ -32,7 +28,6 @@ export class SyncMedicapBooking {
         updatedAt: request.updatedAt,
       });
     } else if (request.updatedAt > booking.updatedAt) {
-      console.log("actualizar!!!!", request.id, request.updatedAt);
       await this.medicapBookingRepository.update({
         id: request.id,
         date: request.date,
@@ -47,8 +42,6 @@ export class SyncMedicapBooking {
         createdAt: request.createdAt,
         updatedAt: request.updatedAt,
       });
-    } else {
-      console.log("nada!!!!", request.id, request.updatedAt);
     }
   }
 }
