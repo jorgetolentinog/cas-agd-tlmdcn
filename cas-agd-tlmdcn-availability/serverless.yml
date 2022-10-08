@@ -1,14 +1,31 @@
 service: cas-agd-tlmdcn-availability
 useDotenv: true
 
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
 provider:
   name: aws
   runtime: nodejs16.x
   environment:
     SERVICE_NAME: ${self:service}
+    DYNAMODB_TABLE_MEDICAP_BOOKING: ${self:service}-${sls:stage}-medicap-booking
   apiGateway:
     restApiId: ${self:custom.cas-agd-tlmdcn.ApiGatewayRestApiId}
     restApiRootResourceId: ${self:custom.cas-agd-tlmdcn.ApiGatewayRestApiRootResourceId}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:BatchWriteItem
+          Resource: '*'
 
 custom:
   cas-agd-tlmdcn:
@@ -21,16 +38,8 @@ custom:
       "Fn::ImportValue": cas-medicap-${sls:stage}-EventBusName
 
 functions:
-  hello:
-    handler: ./src/hello.handler
-    events:
-      - http:
-          path: /availability
-          method: get
-          cors: true
-
   eventMedicapBookingSynced:
-    handler: ./src/event-medicap-booking-synced.handler
+    handler: ./src/application/functions/event-medicap-booking-synced.handler
     events:
       - eventBridge:
           eventBus: ${self:custom.cas-medicap.EventBusName}
@@ -39,3 +48,17 @@ functions:
               - cas-medicap-sync
             detail-type:
               - booking-synced
+
+resources:
+  Resources:
+    BookingTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_BOOKING}
