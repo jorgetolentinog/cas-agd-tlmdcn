@@ -1,0 +1,28 @@
+service: cas-agd-tlmdcn
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+
+resources:
+  Resources:
+    ApiGateway:
+      Type: AWS::ApiGateway::RestApi
+      Properties:
+        Name: ${self:service}-${sls:stage}
+
+  Outputs:
+    ApiGatewayRestApiId:
+      Value:
+        Ref: ApiGateway
+      Export:
+        Name: ${self:service}-${sls:stage}-ApiGatewayRestApiId
+
+    ApiGatewayRestApiRootResourceId:
+      Value:
+        Fn::GetAtt:
+          - ApiGateway
+          - RootResourceId
+      Export:
+        Name: ${self:service}-${sls:stage}-ApiGatewayRestApiRootResourceId

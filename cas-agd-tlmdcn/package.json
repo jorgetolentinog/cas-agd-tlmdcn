@@ -1,0 +1,10 @@
+{
+  "name": "cas-agd-tlmdcn",
+  "version": "1.0.0",
+  "scripts": {
+    "deploy": "npx serverless deploy"
+  },
+  "devDependencies": {
+    "serverless": "^3.22.0"
+  }
+}
