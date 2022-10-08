@@ -8,7 +8,7 @@ export class DynamoDBMedicapCalendarRepository
   implements MedicapCalendarRepository
 {
   private readonly _table =
-    process.env.DYNAMODB_TABLE_MEDICAP_CALENDARP ?? "MedicapCalendarTable";
+    process.env.DYNAMODB_TABLE_MEDICAP_CALENDAR ?? "MedicapCalendarTable";
 
   constructor(private readonly dynamodb: DynamoDB) {}
 

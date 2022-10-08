@@ -8,7 +8,7 @@ export class DynamoDBMedicapExceptionRepository
   implements MedicapExceptionRepository
 {
   private readonly _table =
-    process.env.DYNAMODB_TABLE_MEDICAP_CALENDARP ?? "MedicapCalendarTable";
+    process.env.DYNAMODB_TABLE_MEDICAP_EXCEPTION ?? "MedicapExceptionTable";
 
   constructor(private readonly dynamodb: DynamoDB) {}
 
