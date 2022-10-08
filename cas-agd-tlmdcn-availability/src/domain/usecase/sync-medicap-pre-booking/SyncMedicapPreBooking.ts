@@ -10,9 +10,9 @@ export class SyncMedicapPreBooking {
   ) {}
 
   async execute(request: SyncMedicapPreBookingRequest) {
-    const booking = await this.medicapPreBookingRepository.findById(request.id);
+    const preBooking = await this.medicapPreBookingRepository.findById(request.id);
 
-    if (booking == null) {
+    if (preBooking == null) {
       await this.medicapPreBookingRepository.create({
         id: request.id,
         date: request.date,
@@ -26,7 +26,7 @@ export class SyncMedicapPreBooking {
         createdAt: request.createdAt,
         updatedAt: request.updatedAt,
       });
-    } else if (request.updatedAt > booking.updatedAt) {
+    } else if (request.updatedAt > preBooking.updatedAt) {
       await this.medicapPreBookingRepository.update({
         id: request.id,
         date: request.date,
