@@ -3,7 +3,7 @@ import { inject, injectable } from "tsyringe";
 import { SyncMedicapExceptionRequest } from "./SyncMedicapExceptionRequest";
 
 @injectable()
-export class SyncMedicapCalendar {
+export class SyncMedicapException {
   constructor(
     @inject("MedicapExceptionRepository")
     private medicapExceptionRepository: MedicapExceptionRepository
