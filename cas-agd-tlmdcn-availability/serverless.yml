@@ -53,6 +53,16 @@ functions:
               - cas-medicap-sync
             detail-type:
               - booking-synced
+  eventMedicapPreBookingSynced:
+    handler: ./src/application/functions/event-medicap-pre-booking-synced.handler
+    events:
+      - eventBridge:
+          eventBus: ${self:custom.cas-medicap.EventBusName}
+          pattern:
+            source:
+              - cas-medicap-sync
+            detail-type:
+              - pre-booking-synced
 
 resources:
   Resources:
