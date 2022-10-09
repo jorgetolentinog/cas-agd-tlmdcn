@@ -35,7 +35,10 @@ export class DynamoDBMedicapBookingRepository
           _gsi1pk: `${booking.companyId}#${booking.officeId}#${booking.serviceId}#${booking.professionalId}#${booking.isEnabled}`,
           _gsi1sk: booking.date,
         },
-        ConditionExpression: "attribute_not_exists(_pk)",
+        ExpressionAttributeNames: {
+          "#_pk": "_pk",
+        },
+        ConditionExpression: "attribute_not_exists(#_pk)",
       })
       .promise();
   }
@@ -60,7 +63,7 @@ export class DynamoDBMedicapBookingRepository
     };
 
     let updateExpression = "set ";
-    const expressionAttributeNames: Record<string, string> = {};
+    const expressionAttributeNames: Record<string, string> = { "#_pk": "_pk" };
     const expressionAttributeValues: Record<string, unknown> = {};
     for (const prop in attrs) {
       const value = (attrs as Record<string, unknown>)[prop] ?? null;
@@ -78,7 +81,7 @@ export class DynamoDBMedicapBookingRepository
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
-          "attribute_exists(_pk) and #updatedAt < :updatedAt",
+          "attribute_exists(#_pk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })

@@ -39,7 +39,10 @@ export class DynamoDBMedicapCalendarRepository
           _gsi1pk: `${calendar.companyId}#${calendar.officeId}#${calendar.serviceId}#${calendar.professionalId}#${calendar.isEnabled}`,
           _gsi1sk: calendar.startDate,
         },
-        ConditionExpression: "attribute_not_exists(_pk)",
+        ExpressionAttributeNames: {
+          "#_pk": "_pk",
+        },
+        ConditionExpression: "attribute_not_exists(#_pk)",
       })
       .promise();
   }
@@ -67,7 +70,7 @@ export class DynamoDBMedicapCalendarRepository
     };
 
     let updateExpression = "set ";
-    const expressionAttributeNames: Record<string, string> = {};
+    const expressionAttributeNames: Record<string, string> = { "#_pk": "_pk" };
     const expressionAttributeValues: Record<string, unknown> = {};
     for (const prop in attrs) {
       const value = (attrs as Record<string, unknown>)[prop] ?? null;
@@ -86,7 +89,7 @@ export class DynamoDBMedicapCalendarRepository
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
-          "attribute_exists(_pk) and #updatedAt < :updatedAt",
+          "attribute_exists(#_pk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
