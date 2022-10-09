@@ -198,12 +198,8 @@ export class DynamoDBMedicapExceptionRepository
       const query: DocumentClient.QueryInput = {
         TableName: this._table,
         KeyConditionExpression: "#_pk = :_pk",
-        ExpressionAttributeNames: {
-          "#_pk": "_pk",
-        },
-        ExpressionAttributeValues: {
-          ":_pk": exceptionId,
-        },
+        ExpressionAttributeNames: { "#_pk": "_pk" },
+        ExpressionAttributeValues: { ":_pk": exceptionId },
       };
 
       const items: DocumentClient.AttributeMap[] = [];
