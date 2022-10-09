@@ -141,7 +141,7 @@ export class DynamoDBMedicapExceptionRepository
       const keys: Record<string, string>[] = [];
       for (const serviceId of exception.serviceIds) {
         for (const professionalId of exception.professionalIds) {
-          const gsi1pk = `${serviceId}#${professionalId}`;
+          const gsi1pk = `${serviceId}#${professionalId}#${exception.isEnabled}`;
           keys.push({
             _pk: exception.id,
             _sk: gsi1pk,
