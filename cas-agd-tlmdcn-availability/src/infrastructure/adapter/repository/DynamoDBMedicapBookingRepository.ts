@@ -29,6 +29,8 @@ export class DynamoDBMedicapBookingRepository
           isEnabled: booking.isEnabled,
           createdAt: booking.createdAt,
           updatedAt: booking.updatedAt,
+          // GSI
+          gsi_companyId_officeId_serviceId_professionalId_isEnabled: `${booking.companyId}#${booking.officeId}#${booking.serviceId}#${booking.professionalId}#${booking.isEnabled}`,
         },
         ConditionExpression: "attribute_not_exists(id)",
       })
@@ -48,6 +50,8 @@ export class DynamoDBMedicapBookingRepository
       isEnabled: booking.isEnabled,
       createdAt: booking.createdAt,
       updatedAt: booking.updatedAt,
+      // GSI
+      gsi_companyId_officeId_serviceId_professionalId_isEnabled: `${booking.companyId}#${booking.officeId}#${booking.serviceId}#${booking.professionalId}#${booking.isEnabled}`,
     };
 
     let updateExpression = "set ";
