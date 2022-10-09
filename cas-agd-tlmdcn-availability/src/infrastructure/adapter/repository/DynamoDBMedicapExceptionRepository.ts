@@ -1,7 +1,7 @@
 import { MedicapExceptionRepository } from "@/domain/repository/MedicapExceptionRepository";
 import { MedicapException } from "@/domain/schema/MedicapException";
 import { injectable } from "tsyringe";
-import { DynamoDB } from "../DynamoDB";
+import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
 
 @injectable()
 export class DynamoDBMedicapExceptionRepository
@@ -10,7 +10,7 @@ export class DynamoDBMedicapExceptionRepository
   private readonly _table =
     process.env.DYNAMODB_TABLE_MEDICAP_EXCEPTION ?? "MedicapExceptionTable";
 
-  constructor(private readonly dynamodb: DynamoDB) {}
+  constructor(private readonly dynamodb: DynamoDBDocument) {}
 
   async create(exception: MedicapException): Promise<void> {
     await this.dynamodb.client

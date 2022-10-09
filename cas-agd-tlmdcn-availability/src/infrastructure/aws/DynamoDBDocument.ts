@@ -1,9 +1,10 @@
-import { DocumentClient } from 'aws-sdk/clients/dynamodb'
+import { AWSType, AWS } from '@/infrastructure/aws'
 
-export class DynamoDB {
-  readonly client: DocumentClient
+export class DynamoDBDocument {
+  readonly client: AWSType.DynamoDB.DocumentClient
+
   constructor() {
-    this.client = new DocumentClient(this.getOptions())
+    this.client = new AWS.DynamoDB.DocumentClient(this.getOptions())
   }
 
   private getOptions() {

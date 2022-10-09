@@ -4,11 +4,11 @@ import { MedicapPreBookingRepository } from "@/domain/repository/MedicapPreBooki
 import { MedicapReleaseRepository } from "@/domain/repository/MedicapReleaseRepository";
 import { MedicapCalendarRepository } from "@/domain/repository/MedicapCalendarRepository";
 import { MedicapExceptionRepository } from "@/domain/repository/MedicapExceptionRepository";
-import { DynamoDBMedicapBookingRepository } from "@/infrastructure/repository/adapter/DynamoDBMedicapBookingRepository";
-import { DynamoDBMedicapPreBookingRepository } from "@/infrastructure/repository/adapter/DynamoDBMedicapPreBookingRepository";
-import { DynamoDBMedicapReleaseRepository } from "@/infrastructure/repository/adapter/DynamoDBMedicapReleaseRepository";
-import { DynamoDBMedicapCalendarRepository } from "@/infrastructure/repository/adapter/DynamoDBMedicapCalendarRepository";
-import { DynamoDBMedicapExceptionRepository } from "@/infrastructure/repository/adapter/DynamoDBMedicapExceptionRepository";
+import { DynamoDBMedicapBookingRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapBookingRepository";
+import { DynamoDBMedicapPreBookingRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapPreBookingRepository";
+import { DynamoDBMedicapReleaseRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapReleaseRepository";
+import { DynamoDBMedicapCalendarRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapCalendarRepository";
+import { DynamoDBMedicapExceptionRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapExceptionRepository";
 
 container.register<MedicapBookingRepository>(
   "MedicapBookingRepository",

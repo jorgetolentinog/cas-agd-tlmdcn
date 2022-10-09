@@ -19,6 +19,8 @@ provider:
   apiGateway:
     restApiId: ${self:custom.cas-agd-tlmdcn.ApiGatewayRestApiId}
     restApiRootResourceId: ${self:custom.cas-agd-tlmdcn.ApiGatewayRestApiRootResourceId}
+  tracing:
+    lambda: true
   iam:
     role:
       statements:

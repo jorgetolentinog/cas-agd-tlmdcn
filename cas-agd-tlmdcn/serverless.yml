@@ -4,25 +4,32 @@ useDotenv: true
 provider:
   name: aws
   runtime: nodejs16.x
+  apiGateway:
+    shouldStartNameWithService: true
+  tracing:
+    apiGateway: true
+    lambda: true
+
+functions:
+  httpRoot:
+    handler: ./src/http-root.handler
+    events:
+      - http:
+          path: /
+          method: get
 
 resources:
-  Resources:
-    ApiGateway:
-      Type: AWS::ApiGateway::RestApi
-      Properties:
-        Name: ${self:service}-${sls:stage}
-
   Outputs:
     ApiGatewayRestApiId:
       Value:
-        Ref: ApiGateway
+        Ref: ApiGatewayRestApi
       Export:
         Name: ${self:service}-${sls:stage}-ApiGatewayRestApiId
 
     ApiGatewayRestApiRootResourceId:
       Value:
         Fn::GetAtt:
-          - ApiGateway
+          - ApiGatewayRestApi
           - RootResourceId
       Export:
         Name: ${self:service}-${sls:stage}-ApiGatewayRestApiRootResourceId

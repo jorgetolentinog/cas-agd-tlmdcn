@@ -1,7 +1,7 @@
 import { MedicapCalendarRepository } from "@/domain/repository/MedicapCalendarRepository";
 import { MedicapCalendar } from "@/domain/schema/MedicapCalendar";
 import { injectable } from "tsyringe";
-import { DynamoDB } from "../DynamoDB";
+import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
 
 @injectable()
 export class DynamoDBMedicapCalendarRepository
@@ -10,7 +10,7 @@ export class DynamoDBMedicapCalendarRepository
   private readonly _table =
     process.env.DYNAMODB_TABLE_MEDICAP_CALENDAR ?? "MedicapCalendarTable";
 
-  constructor(private readonly dynamodb: DynamoDB) {}
+  constructor(private readonly dynamodb: DynamoDBDocument) {}
 
   async create(calendar: MedicapCalendar): Promise<void> {
     await this.dynamodb.client

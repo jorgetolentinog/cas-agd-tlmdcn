@@ -1,7 +1,7 @@
 import { MedicapReleaseRepository } from "@/domain/repository/MedicapReleaseRepository";
 import { MedicapRelease } from "@/domain/schema/MedicapRelease";
 import { injectable } from "tsyringe";
-import { DynamoDB } from "../DynamoDB";
+import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
 
 @injectable()
 export class DynamoDBMedicapReleaseRepository
@@ -10,7 +10,7 @@ export class DynamoDBMedicapReleaseRepository
   private readonly _table =
     process.env.DYNAMODB_TABLE_MEDICAP_RELEASE ?? "MedicapReleaseTable";
 
-  constructor(private readonly dynamodb: DynamoDB) {}
+  constructor(private readonly dynamodb: DynamoDBDocument) {}
 
   async create(release: MedicapRelease): Promise<void> {
     await this.dynamodb.client

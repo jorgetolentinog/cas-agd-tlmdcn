@@ -1,53 +1,51 @@
-import { MedicapBookingRepository } from "@/domain/repository/MedicapBookingRepository";
-import { MedicapBooking } from "@/domain/schema/MedicapBooking";
+import { MedicapPreBookingRepository } from "@/domain/repository/MedicapPreBookingRepository";
+import { MedicapPreBooking } from "@/domain/schema/MedicapPreBooking";
 import { injectable } from "tsyringe";
-import { DynamoDB } from "../DynamoDB";
+import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
 
 @injectable()
-export class DynamoDBMedicapBookingRepository
-  implements MedicapBookingRepository
+export class DynamoDBMedicapPreBookingRepository
+  implements MedicapPreBookingRepository
 {
   private readonly _table =
-    process.env.DYNAMODB_TABLE_MEDICAP_BOOKING ?? "MedicapBookingTable";
+    process.env.DYNAMODB_TABLE_MEDICAP_PRE_BOOKING ?? "MedicapPreBookingTable";
 
-  constructor(private readonly dynamodb: DynamoDB) {}
+  constructor(private readonly dynamodb: DynamoDBDocument) {}
 
-  async create(booking: MedicapBooking): Promise<void> {
+  async create(preBooking: MedicapPreBooking): Promise<void> {
     await this.dynamodb.client
       .put({
         TableName: this._table,
         Item: {
-          id: booking.id,
-          date: booking.date,
-          companyId: booking.companyId,
-          officeId: booking.officeId,
-          serviceId: booking.serviceId,
-          professionalId: booking.professionalId,
-          patientId: booking.patientId,
-          calendarId: booking.calendarId,
-          blockDurationInMinutes: booking.blockDurationInMinutes,
-          isEnabled: booking.isEnabled,
-          createdAt: booking.createdAt,
-          updatedAt: booking.updatedAt,
+          id: preBooking.id,
+          date: preBooking.date,
+          companyId: preBooking.companyId,
+          officeId: preBooking.officeId,
+          serviceId: preBooking.serviceId,
+          professionalId: preBooking.professionalId,
+          calendarId: preBooking.calendarId,
+          blockDurationInMinutes: preBooking.blockDurationInMinutes,
+          isEnabled: preBooking.isEnabled,
+          createdAt: preBooking.createdAt,
+          updatedAt: preBooking.updatedAt,
         },
         ConditionExpression: "attribute_not_exists(id)",
       })
       .promise();
   }
 
-  async update(booking: MedicapBooking): Promise<void> {
+  async update(preBooking: MedicapPreBooking): Promise<void> {
     const attrs = {
-      date: booking.date,
-      companyId: booking.companyId,
-      officeId: booking.officeId,
-      serviceId: booking.serviceId,
-      professionalId: booking.professionalId,
-      patientId: booking.patientId,
-      calendarId: booking.calendarId,
-      blockDurationInMinutes: booking.blockDurationInMinutes,
-      isEnabled: booking.isEnabled,
-      createdAt: booking.createdAt,
-      updatedAt: booking.updatedAt,
+      date: preBooking.date,
+      companyId: preBooking.companyId,
+      officeId: preBooking.officeId,
+      serviceId: preBooking.serviceId,
+      professionalId: preBooking.professionalId,
+      calendarId: preBooking.calendarId,
+      blockDurationInMinutes: preBooking.blockDurationInMinutes,
+      isEnabled: preBooking.isEnabled,
+      createdAt: preBooking.createdAt,
+      updatedAt: preBooking.updatedAt,
     };
 
     let updateExpression = "set ";
@@ -65,7 +63,7 @@ export class DynamoDBMedicapBookingRepository
       .update({
         TableName: this._table,
         Key: {
-          id: booking.id,
+          id: preBooking.id,
         },
         UpdateExpression: updateExpression,
         ConditionExpression: "attribute_exists(id) and #updatedAt < :updatedAt",
@@ -75,14 +73,14 @@ export class DynamoDBMedicapBookingRepository
       .promise();
   }
 
-  async findById(bookingId: string): Promise<MedicapBooking | null> {
+  async findById(preBookingId: string): Promise<MedicapPreBooking | null> {
     const result = await this.dynamodb.client
       .query({
         TableName: this._table,
         KeyConditionExpression: "#id = :id",
         ExpressionAttributeNames: { "#id": "id" },
         ExpressionAttributeValues: {
-          ":id": bookingId,
+          ":id": preBookingId,
         },
       })
       .promise();
@@ -99,10 +97,9 @@ export class DynamoDBMedicapBookingRepository
       officeId: item.officeId,
       serviceId: item.serviceId,
       professionalId: item.professionalId,
-      patientId: item.patientId,
       calendarId: item.calendarId,
-      isEnabled: item.isEnabled,
       blockDurationInMinutes: item.blockDurationInMinutes,
+      isEnabled: item.isEnabled,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
     };
