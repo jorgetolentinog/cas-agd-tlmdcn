@@ -32,8 +32,14 @@ export class DynamoDBMedicapCalendarRepository
           days: calendar.days,
           createdAt: calendar.createdAt,
           updatedAt: calendar.updatedAt,
+
+          // Interno
+          _pk: calendar.id,
+          _sk: calendar.id,
+          _gsi1pk: `${calendar.companyId}#${calendar.officeId}#${calendar.serviceId}#${calendar.professionalId}#${calendar.isEnabled}`,
+          _gsi1sk: calendar.startDate,
         },
-        ConditionExpression: "attribute_not_exists(id)",
+        ConditionExpression: "attribute_not_exists(_pk)",
       })
       .promise();
   }
@@ -54,6 +60,10 @@ export class DynamoDBMedicapCalendarRepository
       days: calendar.days,
       createdAt: calendar.createdAt,
       updatedAt: calendar.updatedAt,
+
+      // Interno
+      _gsi1pk: `${calendar.companyId}#${calendar.officeId}#${calendar.serviceId}#${calendar.professionalId}#${calendar.isEnabled}`,
+      _gsi1sk: calendar.startDate,
     };
 
     let updateExpression = "set ";
@@ -71,10 +81,12 @@ export class DynamoDBMedicapCalendarRepository
       .update({
         TableName: this._table,
         Key: {
-          id: calendar.id,
+          _pk: calendar.id,
+          _sk: calendar.id,
         },
         UpdateExpression: updateExpression,
-        ConditionExpression: "attribute_exists(id) and #updatedAt < :updatedAt",
+        ConditionExpression:
+          "attribute_exists(_pk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
@@ -85,10 +97,10 @@ export class DynamoDBMedicapCalendarRepository
     const result = await this.dynamodb.client
       .query({
         TableName: this._table,
-        KeyConditionExpression: "#id = :id",
-        ExpressionAttributeNames: { "#id": "id" },
+        KeyConditionExpression: "#_pk = :_pk",
+        ExpressionAttributeNames: { "#_pk": "_pk" },
         ExpressionAttributeValues: {
-          ":id": calendarId,
+          ":_pk": calendarId,
         },
       })
       .promise();

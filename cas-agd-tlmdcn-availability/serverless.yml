@@ -189,11 +189,28 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: _pk
+            AttributeType: S
+          - AttributeName: _sk
+            AttributeType: S
+          - AttributeName: _gsi1pk
+            AttributeType: S
+          - AttributeName: _gsi1sk
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: _pk
             KeyType: HASH
+          - AttributeName: _sk
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: gsi1
+            KeySchema:
+              - AttributeName: _gsi1pk
+                KeyType: HASH
+              - AttributeName: _gsi1sk
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_CALENDAR}
 
