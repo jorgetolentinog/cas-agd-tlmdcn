@@ -31,8 +31,12 @@ export class DynamoDBMedicapExceptionRepository
           days: exception.days,
           createdAt: exception.createdAt,
           updatedAt: exception.updatedAt,
+
+          // Interno
+          _pk: exception.id,
+          _sk: exception.id,
         },
-        ConditionExpression: "attribute_not_exists(id)",
+        ConditionExpression: "attribute_not_exists(_pk)",
       })
       .promise();
   }
@@ -69,10 +73,12 @@ export class DynamoDBMedicapExceptionRepository
       .update({
         TableName: this._table,
         Key: {
-          id: exception.id,
+          _pk: exception.id,
+          _sk: exception.id,
         },
         UpdateExpression: updateExpression,
-        ConditionExpression: "attribute_exists(id) and #updatedAt < :updatedAt",
+        ConditionExpression:
+          "attribute_exists(_pk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
@@ -83,10 +89,11 @@ export class DynamoDBMedicapExceptionRepository
     const result = await this.dynamodb.client
       .query({
         TableName: this._table,
-        KeyConditionExpression: "#id = :id",
-        ExpressionAttributeNames: { "#id": "id" },
+        KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
+        ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":id": exceptionId,
+          ":_pk": exceptionId,
+          ":_sk": exceptionId,
         },
       })
       .promise();

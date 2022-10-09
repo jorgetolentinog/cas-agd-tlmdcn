@@ -97,10 +97,11 @@ export class DynamoDBMedicapCalendarRepository
     const result = await this.dynamodb.client
       .query({
         TableName: this._table,
-        KeyConditionExpression: "#_pk = :_pk",
-        ExpressionAttributeNames: { "#_pk": "_pk" },
+        KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
+        ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
           ":_pk": calendarId,
+          ":_sk": calendarId,
         },
       })
       .promise();
