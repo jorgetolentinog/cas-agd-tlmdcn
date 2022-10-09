@@ -2,6 +2,8 @@ import { MedicapExceptionRepository } from "@/domain/repository/MedicapException
 import { MedicapException } from "@/domain/schema/MedicapException";
 import { injectable } from "tsyringe";
 import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
+import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import { chunkArray } from "@/domain/service/chunk-array";
 
 @injectable()
 export class DynamoDBMedicapExceptionRepository
@@ -42,6 +44,9 @@ export class DynamoDBMedicapExceptionRepository
         ConditionExpression: "attribute_not_exists(#_pk)",
       })
       .promise();
+
+    // la replica se hace despues de registrar para asegurar idempotencia
+    await this._replicate(exception);
   }
 
   async update(exception: MedicapException): Promise<void> {
@@ -86,6 +91,9 @@ export class DynamoDBMedicapExceptionRepository
         ExpressionAttributeValues: expressionAttributeValues,
       })
       .promise();
+
+    // la replica se hace despues de actualizar para asegurar idempotencia
+    await this._replicate(exception);
   }
 
   async findById(exceptionId: string): Promise<MedicapException | null> {
@@ -122,5 +130,108 @@ export class DynamoDBMedicapExceptionRepository
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
     };
+  }
+
+  private async _replicate(exception: MedicapException) {
+    try {
+      await this._deleteReplicaById(exception.id);
+
+      const keys: Record<string, string>[] = [];
+      for (const serviceId of exception.serviceIds) {
+        for (const professionalId of exception.professionalIds) {
+          const gsi1pk = `${serviceId}#${professionalId}`;
+          keys.push({
+            _pk: exception.id,
+            _sk: gsi1pk,
+            _gsi1pk: gsi1pk,
+            _gsi1sk: exception.startDate,
+          });
+        }
+      }
+
+      const request = keys.map((key) => {
+        return {
+          PutRequest: {
+            Item: {
+              id: exception.id,
+              startDate: exception.startDate,
+              endDate: exception.endDate,
+              isEnabled: exception.isEnabled,
+              recurrence: exception.recurrence,
+              repeatRecurrenceEvery: exception.repeatRecurrenceEvery,
+              professionalIds: exception.professionalIds,
+              serviceIds: exception.serviceIds,
+              dayOfMonth: exception.dayOfMonth,
+              weekOfMonth: exception.weekOfMonth,
+              dayOfWeek: exception.dayOfWeek,
+              days: exception.days,
+              createdAt: exception.createdAt,
+              updatedAt: exception.updatedAt,
+
+              // Interno
+              _pk: key._pk,
+              _sk: key._sk,
+              _gsi1pk: key._gsi1pk,
+              _gsi1sk: key._gsi1sk,
+            },
+          },
+        };
+      });
+
+      for (const chunk of chunkArray(request, this.dynamodb.batchMaxSize)) {
+        await this.dynamodb.client
+          .batchWrite({
+            RequestItems: { [this._table]: chunk },
+          })
+          .promise();
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error("Replica failed");
+    }
+  }
+
+  private async _deleteReplicaById(exceptionId: string) {
+    try {
+      const query: DocumentClient.QueryInput = {
+        TableName: this._table,
+        KeyConditionExpression: "#_pk = :_pk",
+        ExpressionAttributeNames: {
+          "#_pk": "_pk",
+        },
+        ExpressionAttributeValues: {
+          ":_pk": exceptionId,
+        },
+      };
+
+      const items: DocumentClient.AttributeMap[] = [];
+      let queryResult;
+
+      do {
+        queryResult = await this.dynamodb.client.query(query).promise();
+        queryResult.Items?.forEach((item) => {
+          if (item._sk !== exceptionId) {
+            // Agregar solo replicas
+            items.push(item);
+          }
+        });
+        query.ExclusiveStartKey = queryResult.LastEvaluatedKey;
+      } while (query.ExclusiveStartKey != null);
+
+      const request = items.map((item) => ({
+        DeleteRequest: { Key: { _pk: item._pk, _sk: item._sk } },
+      }));
+
+      for (const chunk of chunkArray(request, this.dynamodb.batchMaxSize)) {
+        await this.dynamodb.client
+          .batchWrite({
+            RequestItems: { [this._table]: chunk },
+          })
+          .promise();
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error("Delete replica failed");
+    }
   }
 }
