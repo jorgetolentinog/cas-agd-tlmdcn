@@ -213,7 +213,6 @@ export class DynamoDBMedicapExceptionRepository
         queryResult = await this.dynamodb.client.query(query).promise();
         queryResult.Items?.forEach((item) => {
           if (item._sk !== exceptionId) {
-            // Agregar solo replicas
             items.push(item);
           }
         });
