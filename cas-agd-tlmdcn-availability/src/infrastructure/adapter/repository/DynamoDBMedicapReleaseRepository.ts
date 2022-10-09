@@ -25,6 +25,8 @@ export class DynamoDBMedicapReleaseRepository
           isEnabled: release.isEnabled,
           createdAt: release.createdAt,
           updatedAt: release.updatedAt,
+          // GSI
+          gsi_serviceId_professionalId_isEnabled: `${release.serviceId}#${release.professionalId}#${release.isEnabled}`,
         },
         ConditionExpression: "attribute_not_exists(id)",
       })
@@ -40,6 +42,8 @@ export class DynamoDBMedicapReleaseRepository
       isEnabled: release.isEnabled,
       createdAt: release.createdAt,
       updatedAt: release.updatedAt,
+      // GSI
+      gsi_serviceId_professionalId_isEnabled: `${release.serviceId}#${release.professionalId}#${release.isEnabled}`,
     };
 
     let updateExpression = "set ";
