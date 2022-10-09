@@ -2,6 +2,7 @@ import { MedicapCalendarRepository } from "@/domain/repository/MedicapCalendarRe
 import { MedicapCalendar } from "@/domain/schema/MedicapCalendar";
 import { injectable } from "tsyringe";
 import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
+import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 @injectable()
 export class DynamoDBMedicapCalendarRepository
@@ -37,7 +38,7 @@ export class DynamoDBMedicapCalendarRepository
           _pk: calendar.id,
           _sk: calendar.id,
           _gsi1pk: `${calendar.companyId}#${calendar.officeId}#${calendar.serviceId}#${calendar.professionalId}#${calendar.isEnabled}`,
-          _gsi1sk: calendar.startDate,
+          _gsi1sk: calendar.endDate,
         },
         ExpressionAttributeNames: {
           "#_pk": "_pk",
@@ -66,7 +67,7 @@ export class DynamoDBMedicapCalendarRepository
 
       // Interno
       _gsi1pk: `${calendar.companyId}#${calendar.officeId}#${calendar.serviceId}#${calendar.professionalId}#${calendar.isEnabled}`,
-      _gsi1sk: calendar.startDate,
+      _gsi1sk: calendar.endDate,
     };
 
     let updateExpression = "set ";
@@ -131,5 +132,60 @@ export class DynamoDBMedicapCalendarRepository
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
     };
+  }
+
+  async findByProfessionalAndDateRange(props: {
+    companyId: string;
+    officeId: string;
+    serviceId: string;
+    professionalId: string;
+    isEnabled: boolean;
+    startDate: string;
+    endDate: string;
+  }): Promise<MedicapCalendar[]> {
+    const query: DocumentClient.QueryInput = {
+      TableName: this._table,
+      IndexName: "gsi1",
+      KeyConditionExpression: "#_gsi1pk = :_gsi1pk and #_gsi1sk >= :_gsi1sk",
+      ExpressionAttributeNames: {
+        "#_gsi1pk": "_gsi1pk",
+        "#_gsi1sk": "_gsi1sk",
+      },
+      ExpressionAttributeValues: {
+        ":_gsi1pk": `${props.companyId}#${props.officeId}#${props.serviceId}#${props.professionalId}#${props.isEnabled}`,
+        ":_gsi1sk": props.startDate,
+      },
+    };
+
+    const items: DocumentClient.AttributeMap[] = [];
+    let queryResult;
+
+    do {
+      queryResult = await this.dynamodb.client.query(query).promise();
+      queryResult.Items?.forEach((item) => {
+        if (item.startDate <= props.endDate) {
+          items.push(item);
+        }
+      });
+      query.ExclusiveStartKey = queryResult.LastEvaluatedKey;
+    } while (query.ExclusiveStartKey != null);
+
+    return items.map((item) => ({
+      id: item.id,
+      startDate: item.startDate,
+      endDate: item.endDate,
+      isEnabled: item.isEnabled,
+      companyId: item.companyId,
+      officeId: item.officeId,
+      serviceId: item.serviceId,
+      medicalAreaIds: item.medicalAreaIds,
+      interestAreaIds: item.interestAreaIds,
+      professionalId: item.professionalId,
+      blockDurationInMinutes: item.blockDurationInMinutes,
+      conditionsOfService: item.conditionsOfService,
+      days: item.days,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    }));
   }
 }
