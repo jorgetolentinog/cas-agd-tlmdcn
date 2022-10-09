@@ -45,7 +45,8 @@ export class DynamoDBMedicapExceptionRepository
       })
       .promise();
 
-    // la replica se hace despues de registrar para asegurar idempotencia
+    // la replica se hace despues de registrar para asegurar idempotencia.
+    // Seria mejor usar SQS-FIFO para procesar una replica a la vez
     await this._replicate(exception);
   }
 
@@ -93,6 +94,7 @@ export class DynamoDBMedicapExceptionRepository
       .promise();
 
     // la replica se hace despues de actualizar para asegurar idempotencia
+    // Seria mejor usar SQS-FIFO para procesar una replica a la vez
     await this._replicate(exception);
   }
 
