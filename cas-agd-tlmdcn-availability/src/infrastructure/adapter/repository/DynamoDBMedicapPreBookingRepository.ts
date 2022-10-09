@@ -28,6 +28,8 @@ export class DynamoDBMedicapPreBookingRepository
           isEnabled: preBooking.isEnabled,
           createdAt: preBooking.createdAt,
           updatedAt: preBooking.updatedAt,
+          // GSI
+          gsi_companyId_officeId_serviceId_professionalId_isEnabled: `${preBooking.companyId}#${preBooking.officeId}#${preBooking.serviceId}#${preBooking.professionalId}#${preBooking.isEnabled}`,
         },
         ConditionExpression: "attribute_not_exists(id)",
       })
@@ -46,6 +48,8 @@ export class DynamoDBMedicapPreBookingRepository
       isEnabled: preBooking.isEnabled,
       createdAt: preBooking.createdAt,
       updatedAt: preBooking.updatedAt,
+      // GSI
+      gsi_companyId_officeId_serviceId_professionalId_isEnabled: `${preBooking.companyId}#${preBooking.officeId}#${preBooking.serviceId}#${preBooking.professionalId}#${preBooking.isEnabled}`,
     };
 
     let updateExpression = "set ";
