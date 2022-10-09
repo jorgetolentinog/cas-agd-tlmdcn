@@ -25,10 +25,13 @@ export class DynamoDBMedicapReleaseRepository
           isEnabled: release.isEnabled,
           createdAt: release.createdAt,
           updatedAt: release.updatedAt,
-          // GSI
-          gsi_serviceId_professionalId_isEnabled: `${release.serviceId}#${release.professionalId}#${release.isEnabled}`,
+
+          // Interno
+          _pk: release.id,
+          _gsi1pk: `${release.serviceId}#${release.professionalId}#${release.isEnabled}`,
+          _gsi1sk: release.date,
         },
-        ConditionExpression: "attribute_not_exists(id)",
+        ConditionExpression: "attribute_not_exists(_pk)",
       })
       .promise();
   }
@@ -42,8 +45,10 @@ export class DynamoDBMedicapReleaseRepository
       isEnabled: release.isEnabled,
       createdAt: release.createdAt,
       updatedAt: release.updatedAt,
-      // GSI
-      gsi_serviceId_professionalId_isEnabled: `${release.serviceId}#${release.professionalId}#${release.isEnabled}`,
+
+      // Interno
+      _gsi1pk: `${release.serviceId}#${release.professionalId}#${release.isEnabled}`,
+      _gsi1sk: release.date,
     };
 
     let updateExpression = "set ";
@@ -61,10 +66,11 @@ export class DynamoDBMedicapReleaseRepository
       .update({
         TableName: this._table,
         Key: {
-          id: release.id,
+          _pk: release.id,
         },
         UpdateExpression: updateExpression,
-        ConditionExpression: "attribute_exists(id) and #updatedAt < :updatedAt",
+        ConditionExpression:
+          "attribute_exists(_pk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
@@ -75,10 +81,10 @@ export class DynamoDBMedicapReleaseRepository
     const result = await this.dynamodb.client
       .query({
         TableName: this._table,
-        KeyConditionExpression: "#id = :id",
-        ExpressionAttributeNames: { "#id": "id" },
+        KeyConditionExpression: "#_pk = :_pk",
+        ExpressionAttributeNames: { "#_pk": "_pk" },
         ExpressionAttributeValues: {
-          ":id": releaseId,
+          ":_pk": releaseId,
         },
       })
       .promise();

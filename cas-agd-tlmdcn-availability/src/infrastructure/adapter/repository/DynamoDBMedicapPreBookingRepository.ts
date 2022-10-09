@@ -28,10 +28,13 @@ export class DynamoDBMedicapPreBookingRepository
           isEnabled: preBooking.isEnabled,
           createdAt: preBooking.createdAt,
           updatedAt: preBooking.updatedAt,
-          // GSI
-          gsi_companyId_officeId_serviceId_professionalId_isEnabled: `${preBooking.companyId}#${preBooking.officeId}#${preBooking.serviceId}#${preBooking.professionalId}#${preBooking.isEnabled}`,
+
+          // Interno
+          _pk: preBooking.id,
+          _gsi1pk: `${preBooking.companyId}#${preBooking.officeId}#${preBooking.serviceId}#${preBooking.professionalId}#${preBooking.isEnabled}`,
+          _gsi1sk: preBooking.date,
         },
-        ConditionExpression: "attribute_not_exists(id)",
+        ConditionExpression: "attribute_not_exists(_pk)",
       })
       .promise();
   }
@@ -48,8 +51,10 @@ export class DynamoDBMedicapPreBookingRepository
       isEnabled: preBooking.isEnabled,
       createdAt: preBooking.createdAt,
       updatedAt: preBooking.updatedAt,
-      // GSI
-      gsi_companyId_officeId_serviceId_professionalId_isEnabled: `${preBooking.companyId}#${preBooking.officeId}#${preBooking.serviceId}#${preBooking.professionalId}#${preBooking.isEnabled}`,
+
+      // Interno
+      _gsi1pk: `${preBooking.companyId}#${preBooking.officeId}#${preBooking.serviceId}#${preBooking.professionalId}#${preBooking.isEnabled}`,
+      _gsi1sk: preBooking.date,
     };
 
     let updateExpression = "set ";
@@ -67,10 +72,11 @@ export class DynamoDBMedicapPreBookingRepository
       .update({
         TableName: this._table,
         Key: {
-          id: preBooking.id,
+          _pk: preBooking.id,
         },
         UpdateExpression: updateExpression,
-        ConditionExpression: "attribute_exists(id) and #updatedAt < :updatedAt",
+        ConditionExpression:
+          "attribute_exists(_pk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
@@ -81,10 +87,10 @@ export class DynamoDBMedicapPreBookingRepository
     const result = await this.dynamodb.client
       .query({
         TableName: this._table,
-        KeyConditionExpression: "#id = :id",
-        ExpressionAttributeNames: { "#id": "id" },
+        KeyConditionExpression: "#_pk = :_pk",
+        ExpressionAttributeNames: { "#_pk": "_pk" },
         ExpressionAttributeValues: {
-          ":id": preBookingId,
+          ":_pk": preBookingId,
         },
       })
       .promise();

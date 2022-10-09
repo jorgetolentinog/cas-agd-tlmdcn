@@ -29,10 +29,13 @@ export class DynamoDBMedicapBookingRepository
           isEnabled: booking.isEnabled,
           createdAt: booking.createdAt,
           updatedAt: booking.updatedAt,
-          // GSI
-          gsi_companyId_officeId_serviceId_professionalId_isEnabled: `${booking.companyId}#${booking.officeId}#${booking.serviceId}#${booking.professionalId}#${booking.isEnabled}`,
+
+          // Interno
+          _pk: booking.id,
+          _gsi1pk: `${booking.companyId}#${booking.officeId}#${booking.serviceId}#${booking.professionalId}#${booking.isEnabled}`,
+          _gsi1sk: booking.date,
         },
-        ConditionExpression: "attribute_not_exists(id)",
+        ConditionExpression: "attribute_not_exists(_pk)",
       })
       .promise();
   }
@@ -50,8 +53,10 @@ export class DynamoDBMedicapBookingRepository
       isEnabled: booking.isEnabled,
       createdAt: booking.createdAt,
       updatedAt: booking.updatedAt,
-      // GSI
-      gsi_companyId_officeId_serviceId_professionalId_isEnabled: `${booking.companyId}#${booking.officeId}#${booking.serviceId}#${booking.professionalId}#${booking.isEnabled}`,
+
+      // Interno
+      _gsi1pk: `${booking.companyId}#${booking.officeId}#${booking.serviceId}#${booking.professionalId}#${booking.isEnabled}`,
+      _gsi1sk: booking.date,
     };
 
     let updateExpression = "set ";
@@ -69,10 +74,11 @@ export class DynamoDBMedicapBookingRepository
       .update({
         TableName: this._table,
         Key: {
-          id: booking.id,
+          _pk: booking.id,
         },
         UpdateExpression: updateExpression,
-        ConditionExpression: "attribute_exists(id) and #updatedAt < :updatedAt",
+        ConditionExpression:
+          "attribute_exists(_pk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
@@ -83,10 +89,10 @@ export class DynamoDBMedicapBookingRepository
     const result = await this.dynamodb.client
       .query({
         TableName: this._table,
-        KeyConditionExpression: "#id = :id",
-        ExpressionAttributeNames: { "#id": "id" },
+        KeyConditionExpression: "#_pk = :_pk",
+        ExpressionAttributeNames: { "#_pk": "_pk" },
         ExpressionAttributeValues: {
-          ":id": bookingId,
+          ":_pk": bookingId,
         },
       })
       .promise();

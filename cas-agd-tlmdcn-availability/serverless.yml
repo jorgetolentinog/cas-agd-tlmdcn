@@ -114,21 +114,21 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: _pk
             AttributeType: S
-          - AttributeName: date
+          - AttributeName: _gsi1pk
             AttributeType: S
-          - AttributeName: gsi_companyId_officeId_serviceId_professionalId_isEnabled
+          - AttributeName: _gsi1sk
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: _pk
             KeyType: HASH
         GlobalSecondaryIndexes:
-          - IndexName: gsi_companyId_officeId_serviceId_professionalId_isEnabled
+          - IndexName: gsi1
             KeySchema:
-              - AttributeName: gsi_companyId_officeId_serviceId_professionalId_isEnabled
+              - AttributeName: _gsi1pk
                 KeyType: HASH
-              - AttributeName: date
+              - AttributeName: _gsi1sk
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
@@ -139,21 +139,21 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: _pk
             AttributeType: S
-          - AttributeName: date
+          - AttributeName: _gsi1pk
             AttributeType: S
-          - AttributeName: gsi_companyId_officeId_serviceId_professionalId_isEnabled
+          - AttributeName: _gsi1sk
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: _pk
             KeyType: HASH
         GlobalSecondaryIndexes:
-          - IndexName: gsi_companyId_officeId_serviceId_professionalId_isEnabled
+          - IndexName: gsi1
             KeySchema:
-              - AttributeName: gsi_companyId_officeId_serviceId_professionalId_isEnabled
+              - AttributeName: _gsi1pk
                 KeyType: HASH
-              - AttributeName: date
+              - AttributeName: _gsi1sk
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
@@ -164,21 +164,21 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: _pk
             AttributeType: S
-          - AttributeName: date
+          - AttributeName: _gsi1pk
             AttributeType: S
-          - AttributeName: gsi_serviceId_professionalId_isEnabled
+          - AttributeName: _gsi1sk
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: _pk
             KeyType: HASH
         GlobalSecondaryIndexes:
-          - IndexName: gsi_serviceId_professionalId_isEnabled
+          - IndexName: gsi1
             KeySchema:
-              - AttributeName: gsi_serviceId_professionalId_isEnabled
+              - AttributeName: _gsi1pk
                 KeyType: HASH
-              - AttributeName: date
+              - AttributeName: _gsi1sk
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
@@ -218,10 +218,27 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: _pk
+            AttributeType: S
+          - AttributeName: _sk
+            AttributeType: S
+          - AttributeName: _gsi1pk
+            AttributeType: S
+          - AttributeName: _gsi1sk
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: _pk
             KeyType: HASH
+          - AttributeName: _sk
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: gsi1
+            KeySchema:
+              - AttributeName: _gsi1pk
+                KeyType: HASH
+              - AttributeName: _gsi1sk
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_EXCEPTION}
