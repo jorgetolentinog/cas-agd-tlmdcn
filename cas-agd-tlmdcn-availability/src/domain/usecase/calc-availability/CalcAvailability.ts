@@ -1,5 +1,6 @@
 import { MedicapCalendarRepository } from "@/domain/repository/MedicapCalendarRepository";
 import { inject, injectable } from "tsyringe";
+import { CalcAvailabilityRequest } from "./CalcAvailabilityRequest";
 import { CalcAvailabilityResponse } from "./CalcAvailabilityResponse";
 import { getTimeBlocks, TimeBlock } from "./get-time-blocks";
 
@@ -10,16 +11,18 @@ export class CalcAvailability {
     private calendarRepository: MedicapCalendarRepository
   ) {}
 
-  async execute(): Promise<CalcAvailabilityResponse> {
+  async execute(
+    request: CalcAvailabilityRequest
+  ): Promise<CalcAvailabilityResponse> {
     const calendars =
       await this.calendarRepository.findByProfessionalAndDateRange({
         companyId: "2",
         officeId: "11",
         serviceId: "265",
-        professionalId: "2048",
+        professionalId: request.professionalId,
         isEnabled: true,
-        startDate: "2022-10-06",
-        endDate: "2022-11-10",
+        startDate: request.startDate,
+        endDate: request.endDate,
       });
 
     let blocks: TimeBlock[] = [];
