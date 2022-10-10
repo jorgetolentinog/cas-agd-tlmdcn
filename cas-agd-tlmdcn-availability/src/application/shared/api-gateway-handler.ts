@@ -1,35 +1,32 @@
-import { APIGatewayEvent } from "aws-lambda";
+import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda'
 
-export const apiGatewayHandler = (handler: Handler) => {
-  return async (event: APIGatewayEvent) => {
-    let response: Response;
+export const apiGatewayHandler = (handler: Handler): Handler => {
+  return async (event, context) => {
+    let result: APIGatewayProxyResult
 
     try {
-      response = await handler(event);
+      result = await handler(event, context)
     } catch (error) {
-      response = {
+      result = {
         statusCode: 500,
         body: JSON.stringify({
           message: (error as Error).message,
-          timestamp: new Date().toISOString(),
-        }),
-      };
+          timestamp: new Date().toISOString()
+        })
+      }
     }
 
     return {
-      statusCode: response.statusCode,
-      body: response.body,
+      ...result,
       headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Credentials": true,
-      },
-    };
-  };
-};
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+        ...result.headers
+      }
+    }
+  }
+}
 
-type Handler = (event: APIGatewayEvent) => Promise<Response>;
-
-interface Response {
-  statusCode: number;
-  body: string;
+interface Handler {
+  (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult>
 }

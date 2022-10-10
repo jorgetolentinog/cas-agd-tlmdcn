@@ -11,27 +11,27 @@ export const handler = async (event: EventBridgeEvent<string, unknown>) => {
   }
 
   await container.resolve(SyncMedicapCalendar).execute({
-    id: detail.data.detail.id,
-    startDate: detail.data.detail.startDate,
-    endDate: detail.data.detail.endDate,
-    isEnabled: detail.data.detail.isEnabled,
-    companyId: detail.data.detail.companyId,
-    officeId: detail.data.detail.officeId,
-    serviceId: detail.data.detail.serviceId,
-    medicalAreaIds: detail.data.detail.medicalAreaIds,
-    interestAreaIds: detail.data.detail.interestAreaIds,
-    professionalId: detail.data.detail.professionalId,
-    blockDurationInMinutes: detail.data.detail.blockDurationInMinutes,
-    conditionsOfService: detail.data.detail.conditionsOfService,
-    days: detail.data.detail.days,
-    createdAt: detail.data.detail.createdAt,
-    updatedAt: detail.data.detail.updatedAt,
+    id: detail.data.body.id,
+    startDate: detail.data.body.startDate,
+    endDate: detail.data.body.endDate,
+    isEnabled: detail.data.body.isEnabled,
+    companyId: detail.data.body.companyId,
+    officeId: detail.data.body.officeId,
+    serviceId: detail.data.body.serviceId,
+    medicalAreaIds: detail.data.body.medicalAreaIds,
+    interestAreaIds: detail.data.body.interestAreaIds,
+    professionalId: detail.data.body.professionalId,
+    blockDurationInMinutes: detail.data.body.blockDurationInMinutes,
+    conditionsOfService: detail.data.body.conditionsOfService,
+    days: detail.data.body.days,
+    createdAt: detail.data.body.createdAt,
+    updatedAt: detail.data.body.updatedAt,
   });
 };
 
 function detailParser(detail: unknown) {
   const schema = z.object({
-    detail: z.object({
+    body: z.object({
       id: z.string(),
       startDate: z.string(),
       endDate: z.string(),

@@ -11,24 +11,24 @@ export const handler = async (event: EventBridgeEvent<string, unknown>) => {
   }
 
   await container.resolve(SyncMedicapBooking).execute({
-    id: detail.data.detail.id,
-    date: detail.data.detail.date,
-    companyId: detail.data.detail.companyId,
-    officeId: detail.data.detail.officeId,
-    serviceId: detail.data.detail.serviceId,
-    professionalId: detail.data.detail.professionalId,
-    patientId: detail.data.detail.patientId,
-    calendarId: detail.data.detail.calendarId,
-    blockDurationInMinutes: detail.data.detail.blockDurationInMinutes,
-    isEnabled: detail.data.detail.isEnabled,
-    createdAt: detail.data.detail.createdAt,
-    updatedAt: detail.data.detail.updatedAt,
+    id: detail.data.body.id,
+    date: detail.data.body.date,
+    companyId: detail.data.body.companyId,
+    officeId: detail.data.body.officeId,
+    serviceId: detail.data.body.serviceId,
+    professionalId: detail.data.body.professionalId,
+    patientId: detail.data.body.patientId,
+    calendarId: detail.data.body.calendarId,
+    blockDurationInMinutes: detail.data.body.blockDurationInMinutes,
+    isEnabled: detail.data.body.isEnabled,
+    createdAt: detail.data.body.createdAt,
+    updatedAt: detail.data.body.updatedAt,
   });
 };
 
 function detailParser(detail: unknown) {
   const schema = z.object({
-    detail: z.object({
+    body: z.object({
       id: z.string(),
       date: z.string(),
       companyId: z.string(),

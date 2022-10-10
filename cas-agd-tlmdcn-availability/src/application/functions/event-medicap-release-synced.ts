@@ -11,20 +11,20 @@ export const handler = async (event: EventBridgeEvent<string, unknown>) => {
   }
 
   await container.resolve(SyncMedicapRelease).execute({
-    id: detail.data.detail.id,
-    date: detail.data.detail.date,
-    blockDurationInMinutes: detail.data.detail.blockDurationInMinutes,
-    professionalId: detail.data.detail.professionalId,
-    serviceId: detail.data.detail.serviceId,
-    isEnabled: detail.data.detail.isEnabled,
-    createdAt: detail.data.detail.createdAt,
-    updatedAt: detail.data.detail.updatedAt,
+    id: detail.data.body.id,
+    date: detail.data.body.date,
+    blockDurationInMinutes: detail.data.body.blockDurationInMinutes,
+    professionalId: detail.data.body.professionalId,
+    serviceId: detail.data.body.serviceId,
+    isEnabled: detail.data.body.isEnabled,
+    createdAt: detail.data.body.createdAt,
+    updatedAt: detail.data.body.updatedAt,
   });
 };
 
 function detailParser(detail: unknown) {
   const schema = z.object({
-    detail: z.object({
+    body: z.object({
       id: z.string(),
       date: z.string(),
       blockDurationInMinutes: z.number(),

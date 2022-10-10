@@ -11,26 +11,26 @@ export const handler = async (event: EventBridgeEvent<string, unknown>) => {
   }
 
   await container.resolve(SyncMedicapException).execute({
-    id: detail.data.detail.id,
-    startDate: detail.data.detail.startDate,
-    endDate: detail.data.detail.endDate,
-    isEnabled: detail.data.detail.isEnabled,
-    recurrence: detail.data.detail.recurrence,
-    repeatRecurrenceEvery: detail.data.detail.repeatRecurrenceEvery,
-    professionalIds: detail.data.detail.professionalIds,
-    serviceIds: detail.data.detail.serviceIds,
-    dayOfMonth: detail.data.detail.dayOfMonth,
-    weekOfMonth: detail.data.detail.weekOfMonth,
-    dayOfWeek: detail.data.detail.dayOfWeek,
-    days: detail.data.detail.days,
-    createdAt: detail.data.detail.createdAt,
-    updatedAt: detail.data.detail.updatedAt,
+    id: detail.data.body.id,
+    startDate: detail.data.body.startDate,
+    endDate: detail.data.body.endDate,
+    isEnabled: detail.data.body.isEnabled,
+    recurrence: detail.data.body.recurrence,
+    repeatRecurrenceEvery: detail.data.body.repeatRecurrenceEvery,
+    professionalIds: detail.data.body.professionalIds,
+    serviceIds: detail.data.body.serviceIds,
+    dayOfMonth: detail.data.body.dayOfMonth,
+    weekOfMonth: detail.data.body.weekOfMonth,
+    dayOfWeek: detail.data.body.dayOfWeek,
+    days: detail.data.body.days,
+    createdAt: detail.data.body.createdAt,
+    updatedAt: detail.data.body.updatedAt,
   });
 };
 
 function detailParser(detail: unknown) {
   const schema = z.object({
-    detail: z.object({
+    body: z.object({
       id: z.string(),
       startDate: z.string(),
       endDate: z.string(),
