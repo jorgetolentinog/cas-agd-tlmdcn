@@ -13,7 +13,7 @@ aws lambda invoke /dev/null \
     "detail": {
       "detail": {
         "id": "10001",
-        "date": "2020-10-01 12:00:00",
+        "date": "2020-10-01T12:00:00",
         "companyId": "2",
         "officeId": "11",
         "serviceId": "256",

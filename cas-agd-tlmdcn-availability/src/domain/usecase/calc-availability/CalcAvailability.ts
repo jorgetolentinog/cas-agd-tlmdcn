@@ -49,8 +49,8 @@ export class CalcAvailability {
         serviceId: "256",
         professionalId: request.professionalId,
         isEnabled: true,
-        startDate: request.startDate + " 00:00:00",
-        endDate: request.endDate + " 23:59:59",
+        startDate: request.startDate + "T00:00:00",
+        endDate: request.endDate + "T23:59:59",
       });
 
     console.log({ exceptions: exceptions.length, bookings: bookings.length });
