@@ -11,7 +11,7 @@ aws lambda invoke /dev/null \
   --function-name cas-agd-tlmdcn-availability-dev-eventMedicapBookingSynced \
   --payload '{
     "detail": {
-      "detail": {
+      "body": {
         "id": "10001",
         "date": "2020-10-01T12:00:00",
         "companyId": "2",
@@ -40,7 +40,7 @@ aws lambda invoke /dev/null \
   --function-name cas-agd-tlmdcn-availability-dev-eventMedicapPreBookingSynced \
   --payload '{
     "detail": {
-      "detail": {
+      "body": {
         "id": "10001",
         "date": "2022-09-08T17:00:00",
         "companyId": "2",
@@ -69,7 +69,7 @@ aws lambda invoke /dev/null \
   --function-name cas-agd-tlmdcn-availability-dev-eventMedicapReleaseSynced \
   --payload '{
     "detail": {
-      "detail": {
+      "body": {
         "id": "100",
         "date": "2020-09-15T14:00:00",
         "blockDurationInMinutes": 30,
@@ -94,7 +94,7 @@ aws lambda invoke /dev/null \
   --function-name cas-agd-tlmdcn-availability-dev-eventMedicapCalendarSynced \
   --payload '{
     "detail": {
-      "detail": {
+      "body": {
         "id": "28173",
         "startDate": "2022-09-01",
         "endDate": "2022-09-30",
@@ -142,7 +142,7 @@ aws lambda invoke /dev/null \
   --function-name cas-agd-tlmdcn-availability-dev-eventMedicapExceptionSynced \
   --payload '{
     "detail": {
-      "detail": {
+      "body": {
         "id": "35407",
         "startDate": "2021-08-01",
         "endDate": "2021-08-12",

@@ -43,6 +43,18 @@ custom:
   cas-medicap:
     EventBusName:
       "Fn::ImportValue": cas-medicap-${sls:stage}-EventBusName
+  dynalite:
+    seed:
+      - table: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_BOOKING}
+        source: ./seed/booking.js
+      - table: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_PRE_BOOKING}
+        source: ./seed/pre-booking.js
+      - table: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_RELEASE}
+        source: ./seed/release.js
+      - table: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_CALENDAR}
+        source: ./seed/calendar.js
+      - table: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_EXCEPTION}
+        source: ./seed/exception.js
 
 functions:
   httpAvailabilityGet:
