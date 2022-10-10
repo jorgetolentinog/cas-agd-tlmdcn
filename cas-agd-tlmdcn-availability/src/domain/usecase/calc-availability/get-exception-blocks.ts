@@ -1,7 +1,7 @@
 import { config } from "@/domain/config";
 import { dayjs } from "@/domain/service/date";
 
-export function getTimeBlocks(options: Options): TimeBlock[] {
+export function getExceptionBlocks(options: Options): TimeBlock[] {
   if (options.recurrence === "monthly") {
     if (
       options.dayOfMonth == null &&
@@ -120,19 +120,18 @@ export function getTimeBlocks(options: Options): TimeBlock[] {
             localStartDateTimeFromISO.format("YYYY-MM-DDTHH:mm:ss");
 
           if (localStartDateTimeIsValid) {
-            const block: TimeBlock = {
+            const block = {
               durationInMinutes: options.blockDurationInMinutes,
-              offset: localStartDateTimeFromISO.format("Z"),
-              startDate: {
-                local: localStartDateTimeFromISO.format("YYYY-MM-DDTHH:mm:ss"),
+              start: {
+                local: localStartDateTimeFromISO.format("YYYY-MM-DDTHH:mm:ssZ"),
                 utc: localStartDateTimeFromISO.utc().toISOString(),
               },
-              endDate: {
+              end: {
                 local: localBlockEndDateTimeFromISO.format(
-                  "YYYY-MM-DDTHH:mm:ss"
+                  "YYYY-MM-DDTHH:mm:ssZ"
                 ),
                 utc: localBlockEndDateTimeFromISO.utc().toISOString(),
-              }
+              },
             };
 
             let blockDisabled = false;
@@ -193,13 +192,12 @@ export interface Options {
 
 export interface TimeBlock {
   durationInMinutes: number;
-  offset: string;
-  startDate: {
+  start: {
     local: string;
     utc: string;
-  }
-  endDate: {
+  };
+  end: {
     local: string;
     utc: string;
-  }
+  };
 }
