@@ -63,8 +63,6 @@ export class CalcAvailability {
           startDate: calendar.startDate,
           endDate: calendar.endDate,
           blockDurationInMinutes: calendar.blockDurationInMinutes,
-          recurrence: "weekly",
-          repeatRecurrenceEvery: 1,
           days: calendar.days,
         })
       );

@@ -122,47 +122,17 @@ export function getTimeBlocks(options: Options): TimeBlock[] {
           if (localStartDateTimeIsValid) {
             const block: TimeBlock = {
               durationInMinutes: options.blockDurationInMinutes,
-
+              offset: localStartDateTimeFromISO.format("Z"),
               startDate: {
-                offset: localStartDateTimeFromISO.format("Z"),
                 local: localStartDateTimeFromISO.format("YYYY-MM-DDTHH:mm:ss"),
                 utc: localStartDateTimeFromISO.utc().toISOString(),
               },
-
               endDate: {
-                offset: localBlockEndDateTimeFromISO.format(
-                  "Z"
-                ),
                 local: localBlockEndDateTimeFromISO.format(
                   "YYYY-MM-DDTHH:mm:ss"
                 ),
                 utc: localBlockEndDateTimeFromISO.utc().toISOString(),
               }
-
-              // startLocalOffset: localStartDateTimeFromISO.format("Z"),
-              // startLocalDateTime: localStartDateTimeFromISO.format("YYYY-MM-DDTHH:mm:ss"),
-
-              // endLocalOffset: localBlockEndDateTimeFromISO.format(
-              //   "Z"
-              // ),
-              // endLocalDateTime: localBlockEndDateTimeFromISO.format(
-              //   "YYYY-MM-DDTHH:mm:ss"
-              // ),
-
-              // startUtcDateTime: localStartDateTimeFromISO.utc().toISOString();
-              // endUtcDateTime: localBlockEndDateTimeFromISO.utc().toISOString();
-
-
-              // start: {
-              //   local: localStartDateTimeFromISO.format("YYYY-MM-DDTHH:mm:ssZ"),
-              //   utc: localStartDateTimeFromISO.utc().toISOString(),
-              // },
-              // end: {
-              //   local: localBlockEndDateTimeFromISO.format(
-              //     "YYYY-MM-DDTHH:mm:ssZ"
-              //   ),
-              //   utc: localBlockEndDateTimeFromISO.utc().toISOString(),
-              // },
             };
 
             let blockDisabled = false;
@@ -223,13 +193,12 @@ export interface Options {
 
 export interface TimeBlock {
   durationInMinutes: number;
+  offset: string;
   startDate: {
-    offset: string;
     local: string;
     utc: string;
   }
   endDate: {
-    offset: string;
     local: string;
     utc: string;
   }
