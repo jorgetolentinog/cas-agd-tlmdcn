@@ -1,3 +1,4 @@
+import { config } from "@/domain/config";
 import { MedicapBookingRepository } from "@/domain/repository/MedicapBookingRepository";
 import { MedicapCalendarRepository } from "@/domain/repository/MedicapCalendarRepository";
 import { MedicapExceptionRepository } from "@/domain/repository/MedicapExceptionRepository";
@@ -24,9 +25,9 @@ export class CalcAvailability {
   ): Promise<CalcAvailabilityResponse> {
     const calendars =
       await this.calendarRepository.findByProfessionalAndDateRange({
-        companyId: "2",
-        officeId: "11",
-        serviceId: "265",
+        companyId: config.telemedicine.companyId,
+        officeId: config.telemedicine.officeId,
+        serviceId: config.telemedicine.serviceId,
         professionalId: request.professionalId,
         isEnabled: true,
         startDate: request.startDate,
@@ -35,7 +36,7 @@ export class CalcAvailability {
 
     const exceptions =
       await this.exceptionRepository.findByProfessionalAndDateRange({
-        serviceId: "265",
+        serviceId: config.telemedicine.serviceId,
         professionalId: request.professionalId,
         isEnabled: true,
         startDate: request.startDate,
@@ -44,9 +45,9 @@ export class CalcAvailability {
 
     const bookings =
       await this.bookingRepository.findByProfessionalAndDateRange({
-        companyId: "2",
-        officeId: "11",
-        serviceId: "256",
+        companyId: config.telemedicine.companyId,
+        officeId: config.telemedicine.officeId,
+        serviceId: config.telemedicine.serviceId,
         professionalId: request.professionalId,
         isEnabled: true,
         startDate: request.startDate + "T00:00:00",
