@@ -1,9 +1,9 @@
-import { httpHandler } from "@/application/shared/http-handler";
+import { apiGatewayHandler } from "@/application/shared/api-gateway-handler";
 import { CalcAvailability } from "@/domain/usecase/calc-availability/CalcAvailability";
 import { container } from "tsyringe";
 import { z } from "zod";
 
-export const handler = httpHandler(async (event) => {
+export const handler = apiGatewayHandler(async (event) => {
   const query = queryParser(event.queryStringParameters);
 
   if (!query.success) {
