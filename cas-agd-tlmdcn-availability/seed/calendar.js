@@ -1,8 +1,8 @@
 module.exports = [
   {
     id: "28173",
-    startDate: "2022-09-01",
-    endDate: "2022-09-30",
+    startDate: "2022-11-01",
+    endDate: "2022-11-30",
     isEnabled: true,
     companyId: "2",
     officeId: "11",
@@ -10,7 +10,7 @@ module.exports = [
     medicalAreaIds: ["204", "78"],
     interestAreaIds: ["611", "612"],
     professionalId: "2048",
-    blockDurationInMinutes: 25,
+    blockDurationInMinutes: 20,
     conditionsOfService: {},
     days: [
       {
@@ -18,7 +18,7 @@ module.exports = [
         blocks: [
           {
             startTime: "08:00:00",
-            endTime: "09:00:00",
+            endTime: "08:30:00",
           },
         ],
       },
@@ -28,6 +28,6 @@ module.exports = [
     _pk: "28173",
     _sk: "28173",
     _gsi1pk: "2#11#265#2048#true",
-    _gsi1sk: "2022-09-30",
+    _gsi1sk: "2022-11-30",
   },
 ];

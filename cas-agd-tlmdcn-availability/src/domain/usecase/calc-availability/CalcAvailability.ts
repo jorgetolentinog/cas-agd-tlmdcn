@@ -56,9 +56,9 @@ export class CalcAvailability {
 
     console.log({ exceptions: exceptions.length, bookings: bookings.length });
 
-    let blocks: TimeBlock[] = [];
+    let calendarBlocks: TimeBlock[] = [];
     for (const calendar of calendars) {
-      blocks = blocks.concat(
+      calendarBlocks = calendarBlocks.concat(
         getTimeBlocks({
           startDate: calendar.startDate,
           endDate: calendar.endDate,
@@ -71,7 +71,7 @@ export class CalcAvailability {
     }
 
     return {
-      blocks,
+      blocks: calendarBlocks,
     };
   }
 }

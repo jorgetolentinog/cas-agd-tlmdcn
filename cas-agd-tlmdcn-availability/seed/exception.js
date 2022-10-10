@@ -1,13 +1,13 @@
 module.exports = [
   {
     id: "35407",
-    startDate: "2021-08-01",
-    endDate: "2021-08-12",
+    startDate: "2022-11-21",
+    endDate: "2022-11-21",
     isEnabled: true,
     recurrence: "weekly",
     repeatRecurrenceEvery: 1,
-    professionalIds: ["3432"],
-    serviceIds: ["341"],
+    professionalIds: ["2048"],
+    serviceIds: ["265"],
     days: [
       {
         dayOfWeek: 1,
@@ -31,8 +31,8 @@ module.exports = [
     isEnabled: true,
     recurrence: "weekly",
     repeatRecurrenceEvery: 1,
-    professionalIds: ["3432"],
-    serviceIds: ["341"],
+    professionalIds: ["2048"],
+    serviceIds: ["265"],
     days: [
       {
         dayOfWeek: 1,
@@ -47,8 +47,8 @@ module.exports = [
     createdAt: "2022-10-07T17:40:15Z",
     updatedAt: "2022-10-07T17:45:15Z",
     _pk: "35407",
-    _sk: "341#3432#true",
-    _gsi1pk: "341#3432#true",
-    _gsi1sk: "2021-08-12",
+    _sk: "265#2048#true",
+    _gsi1pk: "265#2048#true",
+    _gsi1sk: "2022-11-21",
   },
 ];
