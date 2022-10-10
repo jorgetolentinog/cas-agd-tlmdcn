@@ -2,6 +2,7 @@ import { MedicapBookingRepository } from "@/domain/repository/MedicapBookingRepo
 import { MedicapBooking } from "@/domain/schema/MedicapBooking";
 import { injectable } from "tsyringe";
 import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
+import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 @injectable()
 export class DynamoDBMedicapBookingRepository
@@ -119,5 +120,55 @@ export class DynamoDBMedicapBookingRepository
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
     };
+  }
+
+  async findByProfessionalAndDateRange(props: {
+    companyId: string;
+    officeId: string;
+    serviceId: string;
+    professionalId: string;
+    isEnabled: boolean;
+    startDate: string;
+    endDate: string;
+  }): Promise<MedicapBooking[]> {
+    const query: DocumentClient.QueryInput = {
+      TableName: this._table,
+      IndexName: "gsi1",
+      KeyConditionExpression:
+        "#_gsi1pk = :_gsi1pk and #_gsi1sk between :_gsi1sk_startDate and :_gsi1sk_endDate",
+      ExpressionAttributeNames: {
+        "#_gsi1pk": "_gsi1pk",
+        "#_gsi1sk": "_gsi1sk",
+      },
+      ExpressionAttributeValues: {
+        ":_gsi1pk": `${props.companyId}#${props.officeId}#${props.serviceId}#${props.professionalId}#${props.isEnabled}`,
+        ":_gsi1sk_startDate": props.startDate,
+        ":_gsi1sk_endDate": props.endDate,
+      },
+    };
+
+    const items: DocumentClient.AttributeMap[] = [];
+    let queryResult;
+
+    do {
+      queryResult = await this.dynamodb.client.query(query).promise();
+      queryResult.Items?.forEach((item) => items.push(item));
+      query.ExclusiveStartKey = queryResult.LastEvaluatedKey;
+    } while (query.ExclusiveStartKey != null);
+
+    return items.map((item) => ({
+      id: item.id,
+      date: item.date,
+      companyId: item.companyId,
+      officeId: item.officeId,
+      serviceId: item.serviceId,
+      professionalId: item.professionalId,
+      patientId: item.patientId,
+      calendarId: item.calendarId,
+      isEnabled: item.isEnabled,
+      blockDurationInMinutes: item.blockDurationInMinutes,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    }));
   }
 }

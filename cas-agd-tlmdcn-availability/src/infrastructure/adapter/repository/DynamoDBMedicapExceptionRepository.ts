@@ -134,6 +134,58 @@ export class DynamoDBMedicapExceptionRepository
     };
   }
 
+  async findByProfessionalAndDateRange(props: {
+    serviceId: string;
+    professionalId: string;
+    isEnabled: boolean;
+    startDate: string;
+    endDate: string;
+  }): Promise<MedicapException[]> {
+    const query: DocumentClient.QueryInput = {
+      TableName: this._table,
+      IndexName: "gsi1",
+      KeyConditionExpression: "#_gsi1pk = :_gsi1pk and #_gsi1sk >= :_gsi1sk",
+      ExpressionAttributeNames: {
+        "#_gsi1pk": "_gsi1pk",
+        "#_gsi1sk": "_gsi1sk",
+      },
+      ExpressionAttributeValues: {
+        ":_gsi1pk": `${props.serviceId}#${props.professionalId}#${props.isEnabled}`,
+        ":_gsi1sk": props.startDate,
+      },
+    };
+
+    const items: DocumentClient.AttributeMap[] = [];
+    let queryResult;
+
+    do {
+      queryResult = await this.dynamodb.client.query(query).promise();
+      queryResult.Items?.forEach((item) => {
+        if (item.startDate <= props.endDate) {
+          items.push(item);
+        }
+      });
+      query.ExclusiveStartKey = queryResult.LastEvaluatedKey;
+    } while (query.ExclusiveStartKey != null);
+
+    return items.map((item) => ({
+      id: item.id,
+      startDate: item.startDate,
+      endDate: item.endDate,
+      isEnabled: item.isEnabled,
+      recurrence: item.recurrence,
+      repeatRecurrenceEvery: item.repeatRecurrenceEvery,
+      professionalIds: item.professionalIds,
+      serviceIds: item.serviceIds,
+      dayOfMonth: item.dayOfMonth,
+      weekOfMonth: item.weekOfMonth,
+      dayOfWeek: item.dayOfWeek,
+      days: item.days,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    }));
+  }
+
   private async _replicate(exception: MedicapException) {
     try {
       await this._deleteReplicaById(exception.id);
@@ -146,7 +198,7 @@ export class DynamoDBMedicapExceptionRepository
             _pk: exception.id,
             _sk: gsi1pk,
             _gsi1pk: gsi1pk,
-            _gsi1sk: exception.startDate,
+            _gsi1sk: exception.endDate,
           });
         }
       }
