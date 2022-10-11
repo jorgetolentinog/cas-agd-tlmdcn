@@ -26,8 +26,8 @@ module.exports = [
   },
   {
     id: "35407",
-    startDate: "2021-08-01",
-    endDate: "2021-08-12",
+    startDate: "2022-11-21",
+    endDate: "2022-11-21",
     isEnabled: true,
     recurrence: "weekly",
     repeatRecurrenceEvery: 1,

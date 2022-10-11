@@ -1,11 +1,12 @@
 export type CalcAvailabilityResponse = {
   blocks: {
     durationInMinutes: number;
-    start: {
+    offset: string;
+    startDate: {
       local: string;
       utc: string;
     };
-    end: {
+    endDate: {
       local: string;
       utc: string;
     };

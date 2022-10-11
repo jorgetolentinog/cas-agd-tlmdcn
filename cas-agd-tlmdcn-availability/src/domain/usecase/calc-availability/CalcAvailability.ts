@@ -5,7 +5,8 @@ import { MedicapExceptionRepository } from "@/domain/repository/MedicapException
 import { inject, injectable } from "tsyringe";
 import { CalcAvailabilityRequest } from "./CalcAvailabilityRequest";
 import { CalcAvailabilityResponse } from "./CalcAvailabilityResponse";
-import { getTimeBlocks, TimeBlock } from "./get-time-blocks";
+import { ExceptionBlock, getExcepcionBlocks } from "./get-exception-blocks";
+import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks";
 
 @injectable()
 export class CalcAvailability {
@@ -56,14 +57,47 @@ export class CalcAvailability {
 
     console.log({ exceptions: exceptions.length, bookings: bookings.length });
 
-    let calendarBlocks: TimeBlock[] = [];
+    let exceptionBlocks: ExceptionBlock[] = [];
+    for (const exception of exceptions) {
+      exceptionBlocks = exceptionBlocks.concat(
+        getExcepcionBlocks({
+          startDate: exception.startDate,
+          endDate: exception.endDate,
+          recurrence: exception.recurrence,
+          repeatRecurrenceEvery: exception.repeatRecurrenceEvery,
+          dayOfMonth: exception.dayOfMonth,
+          weekOfMonth: exception.weekOfMonth,
+          dayOfWeek: exception.dayOfWeek,
+          days: exception.days,
+        })
+      );
+    }
+
+    let calendarBlocks: CalendarBlock[] = [];
     for (const calendar of calendars) {
       calendarBlocks = calendarBlocks.concat(
-        getTimeBlocks({
+        getCaledarBlocks({
           startDate: calendar.startDate,
           endDate: calendar.endDate,
           blockDurationInMinutes: calendar.blockDurationInMinutes,
           days: calendar.days,
+          shouldDisableBlock: (block) => {
+            for (const exceptionBlock of exceptionBlocks) {
+              const isStartDateInRange =
+                block.startDate.local >= exceptionBlock.localStartDate &&
+                block.startDate.local < exceptionBlock.localEndDate;
+
+              const isEndDateInRange =
+                block.endDate.local >= exceptionBlock.localStartDate &&
+                block.endDate.local < exceptionBlock.localEndDate;
+
+              if (isStartDateInRange || isEndDateInRange) {
+                return true;
+              }
+            }
+
+            return false;
+          },
         })
       );
     }

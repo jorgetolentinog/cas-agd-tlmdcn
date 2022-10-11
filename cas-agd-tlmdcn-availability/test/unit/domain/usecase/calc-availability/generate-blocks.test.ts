@@ -1,6 +1,6 @@
 import { dayjs } from "@/domain/service/date";
 import { config } from "@/domain/config";
-import { getTimeBlocks } from "@/domain/usecase/calc-availability/get-time-blocks";
+import { getCaledarBlocks } from "@/domain/usecase/calc-availability/get-calendar-blocks";
 
 test("No debe devolver bloques con duración incompleta", async () => {
   // Arrange
@@ -8,7 +8,7 @@ test("No debe devolver bloques con duración incompleta", async () => {
   const endDate = dayjs.tz("2022-08-02", config.timezone);
 
   // Act
-  const blocks = getTimeBlocks({
+  const blocks = getCaledarBlocks({
     startDate: startDate.format("YYYY-MM-DD"),
     endDate: endDate.format("YYYY-MM-DD"),
     blockDurationInMinutes: 1,
@@ -59,7 +59,7 @@ test("No debe devolver bloques de días no configurados", async () => {
   const endDate = dayjs.tz("2022-08-07", config.timezone);
 
   // Act
-  const blocks = getTimeBlocks({
+  const blocks = getCaledarBlocks({
     startDate: startDate.format("YYYY-MM-DD"),
     endDate: endDate.format("YYYY-MM-DD"),
     blockDurationInMinutes: 30,
@@ -126,7 +126,7 @@ test("No debe devolver bloque deshabilitado", async () => {
   const endDate = dayjs.tz("2022-08-01", config.timezone);
 
   // Act
-  const blocks = getTimeBlocks({
+  const blocks = getCaledarBlocks({
     startDate: startDate.format("YYYY-MM-DD"),
     endDate: endDate.format("YYYY-MM-DD"),
     blockDurationInMinutes: 20,
@@ -176,7 +176,7 @@ test("No debe devolver hora local invalida cuando inicie el horario de verano", 
   const endDate = dayjs.tz("2022-09-04", config.timezone);
 
   // Act
-  const blocks = getTimeBlocks({
+  const blocks = getCaledarBlocks({
     startDate: startDate.format("YYYY-MM-DD"),
     endDate: endDate.format("YYYY-MM-DD"),
     blockDurationInMinutes: 60,
@@ -227,7 +227,7 @@ test("No debe devolver hora local invalida cuando termine el horario de verano",
   const endDate = dayjs.tz("2023-04-02", config.timezone);
 
   // Act
-  const blocks = getTimeBlocks({
+  const blocks = getCaledarBlocks({
     startDate: startDate.format("YYYY-MM-DD"),
     endDate: endDate.format("YYYY-MM-DD"),
     blockDurationInMinutes: 60,
@@ -290,7 +290,7 @@ test("Deberia devolver un bloque el día jueves de cada semana de octubre", asyn
   const endDate = dayjs.tz("2020-10-31", config.timezone);
 
   // Act
-  const blocks = getTimeBlocks({
+  const blocks = getCaledarBlocks({
     startDate: startDate.format("YYYY-MM-DD"),
     endDate: endDate.format("YYYY-MM-DD"),
     blockDurationInMinutes: 30,

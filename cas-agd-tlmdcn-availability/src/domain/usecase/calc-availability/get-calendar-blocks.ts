@@ -1,8 +1,8 @@
 import { config } from "@/domain/config";
 import { dayjs } from "@/domain/service/date";
 
-export function getTimeBlocks(options: Options): TimeBlock[] {
-  const blocks: TimeBlock[] = [];
+export function getCaledarBlocks(options: Options): CalendarBlock[] {
+  const blocks: CalendarBlock[] = [];
 
   let localStartDate = dayjs.utc(options.startDate);
   const localEndDate = dayjs.utc(options.endDate);
@@ -60,7 +60,7 @@ export function getTimeBlocks(options: Options): TimeBlock[] {
             localStartDateTimeFromISO.format("YYYY-MM-DDTHH:mm:ss");
 
           if (localStartDateOffsetIsValid) {
-            const block: TimeBlock = {
+            const block: CalendarBlock = {
               durationInMinutes: options.blockDurationInMinutes,
               offset: localStartDateTimeFromISO.format("Z"),
               startDate: {
@@ -72,7 +72,7 @@ export function getTimeBlocks(options: Options): TimeBlock[] {
                   "YYYY-MM-DDTHH:mm:ss"
                 ),
                 utc: localBlockEndDateTimeFromISO.utc().toISOString(),
-              }
+              },
             };
 
             let blockDisabled = false;
@@ -107,18 +107,18 @@ export interface Options {
     dayOfWeek: number;
     blocks: { startTime: string; endTime: string }[];
   }[];
-  shouldDisableBlock?: (block: TimeBlock) => boolean;
+  shouldDisableBlock?: (block: CalendarBlock) => boolean;
 }
 
-export interface TimeBlock {
+export interface CalendarBlock {
   durationInMinutes: number;
   offset: string;
   startDate: {
     local: string;
     utc: string;
-  }
+  };
   endDate: {
     local: string;
     utc: string;
-  }
+  };
 }
