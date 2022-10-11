@@ -55,8 +55,6 @@ export class CalcAvailability {
         endDate: request.endDate + "T23:59:59",
       });
 
-    console.log({ exceptions: exceptions.length, bookings: bookings.length });
-
     let exceptionBlocks: ExceptionBlock[] = [];
     for (const exception of exceptions) {
       exceptionBlocks = exceptionBlocks.concat(
