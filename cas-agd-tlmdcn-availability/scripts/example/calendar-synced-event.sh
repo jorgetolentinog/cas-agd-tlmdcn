@@ -1,4 +1,6 @@
-AWS_PROFILE=alemana-telemedicina-dev \
+AWS_ACCESS_KEY_ID=local \
+AWS_SECRET_ACCESS_KEY=local \
+AWS_REGION=us-east-1 \
 aws lambda invoke /dev/null \
   --no-cli-pager \
   --cli-binary-format raw-in-base64-out \
