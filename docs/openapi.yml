@@ -1,0 +1,46 @@
+openapi: 3.0.0
+servers:
+  - url: http://localhost:3000/dev
+info:
+  version: "0.0.0"
+  title: cas-agd-tlmdcn
+tags:
+  - name: availability
+    description: Módulo de disponibilidad
+paths:
+  /availability:
+    get:
+      tags:
+        - availability
+      summary: recibe mensajes de medicap
+      parameters:
+        - in: query
+          name: professionalId
+          schema:
+            type: string
+            example: 2048
+          required: true
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            example: '2022-10-01'
+          required: true
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            example: '2022-11-01'
+          required: true
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityGet'
+components:
+  schemas:
+    AvailabilityGet:
+      type: array
+      example: []

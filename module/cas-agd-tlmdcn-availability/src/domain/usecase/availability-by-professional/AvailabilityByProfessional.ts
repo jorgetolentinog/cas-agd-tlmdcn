@@ -7,6 +7,7 @@ import { AvailabilityByProfessionalRequest } from "./AvailabilityByProfessionalR
 import { AvailabilityByProfessionalResponse } from "./AvailabilityByProfessionalResponse";
 import { ExceptionBlock, getExcepcionBlocks } from "./get-exception-blocks";
 import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks";
+import { dayjs } from "@/domain/service/date";
 
 @injectable()
 export class AvailabilityByProfessional {
@@ -24,6 +25,8 @@ export class AvailabilityByProfessional {
   async execute(
     request: AvailabilityByProfessionalRequest
   ): Promise<AvailabilityByProfessionalResponse> {
+    const maxEndDateLocal = "2022-11-05";
+
     const calendars =
       await this.calendarRepository.findByProfessionalAndDateRange({
         companyId: config.telemedicine.companyId,
@@ -55,6 +58,8 @@ export class AvailabilityByProfessional {
         endDate: request.endDate + "T23:59:59",
       });
 
+    console.log("bookings length", bookings.length);
+
     let exceptionBlocks: ExceptionBlock[] = [];
     for (const exception of exceptions) {
       exceptionBlocks = exceptionBlocks.concat(
@@ -73,10 +78,13 @@ export class AvailabilityByProfessional {
 
     let calendarBlocks: CalendarBlock[] = [];
     for (const calendar of calendars) {
+      const calendarEndDate =
+        calendar.endDate > maxEndDateLocal ? maxEndDateLocal : calendar.endDate;
+
       calendarBlocks = calendarBlocks.concat(
         getCaledarBlocks({
           startDate: calendar.startDate,
-          endDate: calendar.endDate,
+          endDate: calendarEndDate,
           blockDurationInMinutes: calendar.blockDurationInMinutes,
           days: calendar.days,
           shouldDisableBlock: (block) => {
@@ -88,6 +96,26 @@ export class AvailabilityByProfessional {
               const isEndDateInRange =
                 block.endDate.local >= exceptionBlock.localStartDate &&
                 block.endDate.local < exceptionBlock.localEndDate;
+
+              if (isStartDateInRange || isEndDateInRange) {
+                return true;
+              }
+            }
+
+            for (const booking of bookings) {
+              const bookignStartDate = booking.date;
+              const bookingEndDate = dayjs
+                .utc(booking.date)
+                .add(booking.blockDurationInMinutes, "minutes")
+                .format("YYYY-MM-DDTHH:mm:ss");
+
+              const isStartDateInRange =
+                block.startDate.local >= bookignStartDate &&
+                block.startDate.local < bookingEndDate;
+
+              const isEndDateInRange =
+                block.endDate.local >= bookignStartDate &&
+                block.endDate.local < bookingEndDate;
 
               if (isStartDateInRange || isEndDateInRange) {
                 return true;
