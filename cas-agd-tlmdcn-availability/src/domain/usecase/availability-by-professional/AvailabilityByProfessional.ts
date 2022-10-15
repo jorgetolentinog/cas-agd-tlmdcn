@@ -3,13 +3,13 @@ import { MedicapBookingRepository } from "@/domain/repository/MedicapBookingRepo
 import { MedicapCalendarRepository } from "@/domain/repository/MedicapCalendarRepository";
 import { MedicapExceptionRepository } from "@/domain/repository/MedicapExceptionRepository";
 import { inject, injectable } from "tsyringe";
-import { CalcAvailabilityRequest } from "./CalcAvailabilityRequest";
-import { CalcAvailabilityResponse } from "./CalcAvailabilityResponse";
+import { AvailabilityByProfessionalRequest } from "./AvailabilityByProfessionalRequest";
+import { AvailabilityByProfessionalResponse } from "./AvailabilityByProfessionalResponse";
 import { ExceptionBlock, getExcepcionBlocks } from "./get-exception-blocks";
 import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks";
 
 @injectable()
-export class CalcAvailability {
+export class AvailabilityByProfessional {
   constructor(
     @inject("MedicapCalendarRepository")
     private calendarRepository: MedicapCalendarRepository,
@@ -22,8 +22,8 @@ export class CalcAvailability {
   ) {}
 
   async execute(
-    request: CalcAvailabilityRequest
-  ): Promise<CalcAvailabilityResponse> {
+    request: AvailabilityByProfessionalRequest
+  ): Promise<AvailabilityByProfessionalResponse> {
     const calendars =
       await this.calendarRepository.findByProfessionalAndDateRange({
         companyId: config.telemedicine.companyId,

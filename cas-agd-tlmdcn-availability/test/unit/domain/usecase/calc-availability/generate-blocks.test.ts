@@ -1,6 +1,6 @@
 import { dayjs } from "@/domain/service/date";
 import { config } from "@/domain/config";
-import { getCaledarBlocks } from "@/domain/usecase/calc-availability/get-calendar-blocks";
+import { getCaledarBlocks } from "@/domain/usecase/availability-by-professional/get-calendar-blocks";
 
 test("No debe devolver bloques con duración incompleta", async () => {
   // Arrange

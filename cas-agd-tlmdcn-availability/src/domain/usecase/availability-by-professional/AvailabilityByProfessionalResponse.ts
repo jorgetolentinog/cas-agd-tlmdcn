@@ -1,4 +1,4 @@
-export type CalcAvailabilityResponse = {
+export type AvailabilityByProfessionalResponse = {
   blocks: {
     durationInMinutes: number;
     offset: string;
