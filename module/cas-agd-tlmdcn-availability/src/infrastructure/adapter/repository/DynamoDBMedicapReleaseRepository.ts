@@ -7,8 +7,7 @@ import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
 export class DynamoDBMedicapReleaseRepository
   implements MedicapReleaseRepository
 {
-  private readonly _table =
-    process.env.DYNAMODB_TABLE_MEDICAP_RELEASE ?? "MedicapReleaseTable";
+  private readonly _table = process.env.DYNAMODB_TABLE ?? "DynamoDBTable";
 
   constructor(private readonly dynamodb: DynamoDBDocument) {}
 
@@ -27,8 +26,9 @@ export class DynamoDBMedicapReleaseRepository
           updatedAt: release.updatedAt,
 
           // Interno
-          _pk: release.id,
-          _gsi1pk: `${release.serviceId}#${release.professionalId}#${release.isEnabled}`,
+          _pk: `medicap-release:${release.id}`,
+          _sk: `medicap-release:${release.id}`,
+          _gsi1pk: `medicap-release#serviceId:${release.serviceId}#professionalId:${release.professionalId}#isEnabled:${release.isEnabled}`,
           _gsi1sk: release.date,
         },
         ExpressionAttributeNames: {
@@ -50,12 +50,12 @@ export class DynamoDBMedicapReleaseRepository
       updatedAt: release.updatedAt,
 
       // Interno
-      _gsi1pk: `${release.serviceId}#${release.professionalId}#${release.isEnabled}`,
+      _gsi1pk: `medicap-release#serviceId:${release.serviceId}#professionalId:${release.professionalId}#isEnabled:${release.isEnabled}`,
       _gsi1sk: release.date,
     };
 
     let updateExpression = "set ";
-    const expressionAttributeNames: Record<string, string> = {'#_pk': '_pk'};
+    const expressionAttributeNames: Record<string, string> = { "#_pk": "_pk" };
     const expressionAttributeValues: Record<string, unknown> = {};
     for (const prop in attrs) {
       const value = (attrs as Record<string, unknown>)[prop] ?? null;
@@ -69,7 +69,8 @@ export class DynamoDBMedicapReleaseRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: release.id,
+          _pk: `medicap-release:${release.id}`,
+          _sk: `medicap-release:${release.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
@@ -84,10 +85,11 @@ export class DynamoDBMedicapReleaseRepository
     const result = await this.dynamodb.client
       .query({
         TableName: this._table,
-        KeyConditionExpression: "#_pk = :_pk",
-        ExpressionAttributeNames: { "#_pk": "_pk" },
+        KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
+        ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": releaseId,
+          ":_pk": `medicap-release:${releaseId}`,
+          ":_sk": `medicap-release:${releaseId}`,
         },
       })
       .promise();

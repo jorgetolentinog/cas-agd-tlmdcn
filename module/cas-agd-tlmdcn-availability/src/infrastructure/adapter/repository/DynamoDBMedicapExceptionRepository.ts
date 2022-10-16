@@ -9,8 +9,7 @@ import { chunkArray } from "@/domain/service/chunk-array";
 export class DynamoDBMedicapExceptionRepository
   implements MedicapExceptionRepository
 {
-  private readonly _table =
-    process.env.DYNAMODB_TABLE_MEDICAP_EXCEPTION ?? "MedicapExceptionTable";
+  private readonly _table = process.env.DYNAMODB_TABLE ?? "DynamoDBTable";
 
   constructor(private readonly dynamodb: DynamoDBDocument) {}
 

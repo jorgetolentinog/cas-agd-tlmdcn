@@ -11,11 +11,7 @@ provider:
   runtime: nodejs16.x
   environment:
     SERVICE_NAME: ${self:service}
-    DYNAMODB_TABLE_MEDICAP_BOOKING: ${self:service}-${sls:stage}-medicap-booking
-    DYNAMODB_TABLE_MEDICAP_PRE_BOOKING: ${self:service}-${sls:stage}-medicap-pre-booking
-    DYNAMODB_TABLE_MEDICAP_RELEASE: ${self:service}-${sls:stage}-medicap-release
-    DYNAMODB_TABLE_MEDICAP_CALENDAR: ${self:service}-${sls:stage}-medicap-calendar
-    DYNAMODB_TABLE_MEDICAP_EXCEPTION: ${self:service}-${sls:stage}-medicap-exception
+    DYNAMODB_TABLE: ${self:service}-${sls:stage}-table
   apiGateway:
     restApiId: ${self:custom.cas-agd-tlmdcn.ApiGatewayRestApiId}
     restApiRootResourceId: ${self:custom.cas-agd-tlmdcn.ApiGatewayRestApiRootResourceId}
@@ -43,18 +39,6 @@ custom:
   cas-medicap:
     EventBusName:
       "Fn::ImportValue": cas-medicap-${sls:stage}-EventBusName
-  # dynalite:
-  #   seed:
-  #     - table: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_BOOKING}
-  #       source: ./seed/booking.js
-  #     - table: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_PRE_BOOKING}
-  #       source: ./seed/pre-booking.js
-  #     - table: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_RELEASE}
-  #       source: ./seed/release.js
-  #     - table: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_CALENDAR}
-  #       source: ./seed/calendar.js
-  #     - table: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_EXCEPTION}
-  #       source: ./seed/exception.js
 
 functions:
   httpAvailabilityGet:
@@ -122,82 +106,7 @@ functions:
 
 resources:
   Resources:
-    BookingTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: _pk
-            AttributeType: S
-          - AttributeName: _gsi1pk
-            AttributeType: S
-          - AttributeName: _gsi1sk
-            AttributeType: S
-        KeySchema:
-          - AttributeName: _pk
-            KeyType: HASH
-        GlobalSecondaryIndexes:
-          - IndexName: gsi1
-            KeySchema:
-              - AttributeName: _gsi1pk
-                KeyType: HASH
-              - AttributeName: _gsi1sk
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-        BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_BOOKING}
-
-    PreBookingTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: _pk
-            AttributeType: S
-          - AttributeName: _gsi1pk
-            AttributeType: S
-          - AttributeName: _gsi1sk
-            AttributeType: S
-        KeySchema:
-          - AttributeName: _pk
-            KeyType: HASH
-        GlobalSecondaryIndexes:
-          - IndexName: gsi1
-            KeySchema:
-              - AttributeName: _gsi1pk
-                KeyType: HASH
-              - AttributeName: _gsi1sk
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-        BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_PRE_BOOKING}
-
-    ReleaseTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: _pk
-            AttributeType: S
-          - AttributeName: _gsi1pk
-            AttributeType: S
-          - AttributeName: _gsi1sk
-            AttributeType: S
-        KeySchema:
-          - AttributeName: _pk
-            KeyType: HASH
-        GlobalSecondaryIndexes:
-          - IndexName: gsi1
-            KeySchema:
-              - AttributeName: _gsi1pk
-                KeyType: HASH
-              - AttributeName: _gsi1sk
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-        BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_RELEASE}
-
-    CalendarTable:
+    DynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
@@ -224,33 +133,4 @@ resources:
             Projection:
               ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_CALENDAR}
-
-    ExceptionTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: _pk
-            AttributeType: S
-          - AttributeName: _sk
-            AttributeType: S
-          - AttributeName: _gsi1pk
-            AttributeType: S
-          - AttributeName: _gsi1sk
-            AttributeType: S
-        KeySchema:
-          - AttributeName: _pk
-            KeyType: HASH
-          - AttributeName: _sk
-            KeyType: RANGE
-        GlobalSecondaryIndexes:
-          - IndexName: gsi1
-            KeySchema:
-              - AttributeName: _gsi1pk
-                KeyType: HASH
-              - AttributeName: _gsi1sk
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-        BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.DYNAMODB_TABLE_MEDICAP_EXCEPTION}
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}

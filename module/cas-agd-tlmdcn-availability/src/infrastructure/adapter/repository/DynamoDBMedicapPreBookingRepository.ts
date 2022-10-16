@@ -7,8 +7,7 @@ import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
 export class DynamoDBMedicapPreBookingRepository
   implements MedicapPreBookingRepository
 {
-  private readonly _table =
-    process.env.DYNAMODB_TABLE_MEDICAP_PRE_BOOKING ?? "MedicapPreBookingTable";
+  private readonly _table = process.env.DYNAMODB_TABLE ?? "DynamoDBTable";
 
   constructor(private readonly dynamodb: DynamoDBDocument) {}
 
@@ -31,6 +30,7 @@ export class DynamoDBMedicapPreBookingRepository
 
           // Interno
           _pk: preBooking.id,
+          _sk: preBooking.id,
           _gsi1pk: `${preBooking.companyId}#${preBooking.officeId}#${preBooking.serviceId}#${preBooking.professionalId}#${preBooking.isEnabled}`,
           _gsi1sk: preBooking.date,
         },
@@ -76,6 +76,7 @@ export class DynamoDBMedicapPreBookingRepository
         TableName: this._table,
         Key: {
           _pk: preBooking.id,
+          _sk: preBooking.id,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
@@ -90,10 +91,11 @@ export class DynamoDBMedicapPreBookingRepository
     const result = await this.dynamodb.client
       .query({
         TableName: this._table,
-        KeyConditionExpression: "#_pk = :_pk",
-        ExpressionAttributeNames: { "#_pk": "_pk" },
+        KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
+        ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
           ":_pk": preBookingId,
+          ":_sk": preBookingId,
         },
       })
       .promise();

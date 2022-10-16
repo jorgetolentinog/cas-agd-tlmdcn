@@ -8,8 +8,7 @@ import { DocumentClient } from "aws-sdk/clients/dynamodb";
 export class DynamoDBMedicapBookingRepository
   implements MedicapBookingRepository
 {
-  private readonly _table =
-    process.env.DYNAMODB_TABLE_MEDICAP_BOOKING ?? "MedicapBookingTable";
+  private readonly _table = process.env.DYNAMODB_TABLE ?? "DynamoDBTable";
 
   constructor(private readonly dynamodb: DynamoDBDocument) {}
 
@@ -32,14 +31,17 @@ export class DynamoDBMedicapBookingRepository
           updatedAt: booking.updatedAt,
 
           // Interno
-          _pk: booking.id,
-          _gsi1pk: `${booking.companyId}#${booking.officeId}#${booking.serviceId}#${booking.professionalId}#${booking.isEnabled}`,
+          _pk: `booking:${booking.id}`,
+          _sk: `booking:${booking.id}`,
+          _gsi1pk: `booking#companyId:${booking.companyId}#officeId:${booking.officeId}#serviceId:${booking.serviceId}#professionalId:${booking.professionalId}#isEnabled:${booking.isEnabled}`,
           _gsi1sk: booking.date,
         },
         ExpressionAttributeNames: {
           "#_pk": "_pk",
+          "#_sk": "_sk",
         },
-        ConditionExpression: "attribute_not_exists(#_pk)",
+        ConditionExpression:
+          "attribute_not_exists(#_pk) and attribute_not_exists(#_sk)",
       })
       .promise();
   }
@@ -59,12 +61,15 @@ export class DynamoDBMedicapBookingRepository
       updatedAt: booking.updatedAt,
 
       // Interno
-      _gsi1pk: `${booking.companyId}#${booking.officeId}#${booking.serviceId}#${booking.professionalId}#${booking.isEnabled}`,
+      _gsi1pk: `booking#companyId:${booking.companyId}#officeId:${booking.officeId}#serviceId:${booking.serviceId}#professionalId:${booking.professionalId}#isEnabled:${booking.isEnabled}`,
       _gsi1sk: booking.date,
     };
 
     let updateExpression = "set ";
-    const expressionAttributeNames: Record<string, string> = { "#_pk": "_pk" };
+    const expressionAttributeNames: Record<string, string> = {
+      "#_pk": "_pk",
+      "#_sk": "_sk",
+    };
     const expressionAttributeValues: Record<string, unknown> = {};
     for (const prop in attrs) {
       const value = (attrs as Record<string, unknown>)[prop] ?? null;
@@ -78,11 +83,12 @@ export class DynamoDBMedicapBookingRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: booking.id,
+          _pk: `booking:${booking.id}`,
+          _sk: `booking:${booking.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
-          "attribute_exists(#_pk) and #updatedAt < :updatedAt",
+          "attribute_exists(#_pk) and attribute_exists(#_sk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
@@ -93,10 +99,11 @@ export class DynamoDBMedicapBookingRepository
     const result = await this.dynamodb.client
       .query({
         TableName: this._table,
-        KeyConditionExpression: "#_pk = :_pk",
-        ExpressionAttributeNames: { "#_pk": "_pk" },
+        KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
+        ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": bookingId,
+          ":_pk": `booking:${bookingId}`,
+          ":_sk": `booking:${bookingId}`,
         },
       })
       .promise();
@@ -141,7 +148,7 @@ export class DynamoDBMedicapBookingRepository
         "#_gsi1sk": "_gsi1sk",
       },
       ExpressionAttributeValues: {
-        ":_gsi1pk": `${props.companyId}#${props.officeId}#${props.serviceId}#${props.professionalId}#${props.isEnabled}`,
+        ":_gsi1pk": `booking#companyId:${props.companyId}#officeId:${props.officeId}#serviceId:${props.serviceId}#professionalId:${props.professionalId}#isEnabled:${props.isEnabled}`,
         ":_gsi1sk_startDate": props.startDate,
         ":_gsi1sk_endDate": props.endDate,
       },

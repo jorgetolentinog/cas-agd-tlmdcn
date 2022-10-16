@@ -8,8 +8,7 @@ import { DocumentClient } from "aws-sdk/clients/dynamodb";
 export class DynamoDBMedicapCalendarRepository
   implements MedicapCalendarRepository
 {
-  private readonly _table =
-    process.env.DYNAMODB_TABLE_MEDICAP_CALENDAR ?? "MedicapCalendarTable";
+  private readonly _table = process.env.DYNAMODB_TABLE ?? "DynamoDBTable";
 
   constructor(private readonly dynamodb: DynamoDBDocument) {}
 
@@ -35,15 +34,17 @@ export class DynamoDBMedicapCalendarRepository
           updatedAt: calendar.updatedAt,
 
           // Interno
-          _pk: calendar.id,
-          _sk: calendar.id,
-          _gsi1pk: `${calendar.companyId}#${calendar.officeId}#${calendar.serviceId}#${calendar.professionalId}#${calendar.isEnabled}`,
+          _pk: `calendar#${calendar.id}`,
+          _sk: `calendar#${calendar.id}`,
+          _gsi1pk: `calendar#companyId#${calendar.companyId}#office#${calendar.officeId}#service#${calendar.serviceId}#professionalId#${calendar.professionalId}#isEnabled#${calendar.isEnabled}`,
           _gsi1sk: calendar.endDate,
         },
         ExpressionAttributeNames: {
           "#_pk": "_pk",
+          "#_sk": "_sk",
         },
-        ConditionExpression: "attribute_not_exists(#_pk)",
+        ConditionExpression:
+          "attribute_not_exists(#_pk) and attribute_not_exists(#_sk)",
       })
       .promise();
   }
@@ -66,12 +67,15 @@ export class DynamoDBMedicapCalendarRepository
       updatedAt: calendar.updatedAt,
 
       // Interno
-      _gsi1pk: `${calendar.companyId}#${calendar.officeId}#${calendar.serviceId}#${calendar.professionalId}#${calendar.isEnabled}`,
+      _gsi1pk: `calendar#companyId#${calendar.companyId}#office#${calendar.officeId}#service#${calendar.serviceId}#professionalId#${calendar.professionalId}#isEnabled#${calendar.isEnabled}`,
       _gsi1sk: calendar.endDate,
     };
 
     let updateExpression = "set ";
-    const expressionAttributeNames: Record<string, string> = { "#_pk": "_pk" };
+    const expressionAttributeNames: Record<string, string> = {
+      "#_pk": "_pk",
+      "#_sk": "_sk",
+    };
     const expressionAttributeValues: Record<string, unknown> = {};
     for (const prop in attrs) {
       const value = (attrs as Record<string, unknown>)[prop] ?? null;
@@ -85,12 +89,12 @@ export class DynamoDBMedicapCalendarRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: calendar.id,
-          _sk: calendar.id,
+          _pk: `calendar#${calendar.id}`,
+          _sk: `calendar#${calendar.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
-          "attribute_exists(#_pk) and #updatedAt < :updatedAt",
+          "attribute_exists(#_pk) and attribute_exists(#_sk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
@@ -104,8 +108,8 @@ export class DynamoDBMedicapCalendarRepository
         KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
         ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": calendarId,
-          ":_sk": calendarId,
+          ":_pk": `calendar#${calendarId}`,
+          ":_sk": `calendar#${calendarId}`,
         },
       })
       .promise();
@@ -152,7 +156,7 @@ export class DynamoDBMedicapCalendarRepository
         "#_gsi1sk": "_gsi1sk",
       },
       ExpressionAttributeValues: {
-        ":_gsi1pk": `${props.companyId}#${props.officeId}#${props.serviceId}#${props.professionalId}#${props.isEnabled}`,
+        ":_gsi1pk": `calendar#companyId#${props.companyId}#office#${props.officeId}#service#${props.serviceId}#professionalId#${props.professionalId}#isEnabled#${props.isEnabled}`,
         ":_gsi1sk": props.startDate,
       },
     };
