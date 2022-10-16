@@ -8,6 +8,8 @@ import { AvailabilityByProfessionalResponse } from "./AvailabilityByProfessional
 import { ExceptionBlock, getExcepcionBlocks } from "./get-exception-blocks";
 import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks-2";
 import { dayjs } from "@/domain/service/date";
+import { MedicapCalendar } from "@/domain/schema/MedicapCalendar";
+import { MedicapException } from "@/domain/schema/MedicapException";
 
 @injectable()
 export class AvailabilityByProfessional {
@@ -27,52 +29,25 @@ export class AvailabilityByProfessional {
   ): Promise<AvailabilityByProfessionalResponse> {
     const maxEndDateLocal = "2022-11-05";
 
-    const calendars =
-      await this.calendarRepository.findByProfessionalAndDateRange({
-        companyId: config.telemedicine.companyId,
-        officeId: config.telemedicine.officeId,
-        serviceId: config.telemedicine.serviceId,
-        professionalId: request.professionalId,
-        isEnabled: true,
-        startDate: request.startDate,
-        endDate: request.endDate,
-      });
+    const calendars = await this.getCalendars(
+      request.professionalId,
+      request.startDate,
+      request.endDate
+    );
 
-    const exceptions =
-      await this.exceptionRepository.findByProfessionalAndDateRange({
-        serviceId: config.telemedicine.serviceId,
-        professionalId: request.professionalId,
-        isEnabled: true,
-        startDate: request.startDate,
-        endDate: request.endDate,
-      });
+    const exceptions = await this.getExceptions(
+      request.professionalId,
+      request.startDate,
+      request.endDate
+    );
 
-    const bookings =
-      await this.bookingRepository.findByProfessionalAndDateRange({
-        companyId: config.telemedicine.companyId,
-        officeId: config.telemedicine.officeId,
-        serviceId: config.telemedicine.serviceId,
-        professionalId: request.professionalId,
-        isEnabled: true,
-        startDate: request.startDate + "T00:00:00",
-        endDate: request.endDate + "T23:59:59",
-      });
+    const bookings = await this.getBookings(
+      request.professionalId,
+      request.startDate,
+      request.endDate
+    );
 
-    let exceptionBlocks: ExceptionBlock[] = [];
-    for (const exception of exceptions) {
-      exceptionBlocks = exceptionBlocks.concat(
-        getExcepcionBlocks({
-          startDate: exception.startDate,
-          endDate: exception.endDate,
-          recurrence: exception.recurrence,
-          repeatRecurrenceEvery: exception.repeatRecurrenceEvery,
-          dayOfMonth: exception.dayOfMonth,
-          weekOfMonth: exception.weekOfMonth,
-          dayOfWeek: exception.dayOfWeek,
-          days: exception.days,
-        })
-      );
-    }
+    const exceptionBlocks = this.getExceptionBlocks(exceptions);
 
     let calendarBlocks: CalendarBlock[] = [];
     for (const calendar of calendars) {
@@ -87,19 +62,18 @@ export class AvailabilityByProfessional {
           days: calendar.days,
           shouldDisableBlock: (block) => {
             for (const exceptionBlock of exceptionBlocks) {
-              const isBlockInside =
-                block.startDate <= exceptionBlock.localStartDate &&
-                block.endDate >= exceptionBlock.localEndDate;
-
-              const isStartBlockInside =
-                block.startDate >= exceptionBlock.localStartDate &&
-                block.startDate < exceptionBlock.localEndDate;
-
-              const isEndBlockInside =
-                block.endDate > exceptionBlock.localStartDate &&
-                block.endDate < exceptionBlock.localEndDate;
-
-              if (isBlockInside || isStartBlockInside || isEndBlockInside) {
+              if (
+                this.isCollidedBlock({
+                  freeBlock: {
+                    startDate: block.startDate,
+                    endDate: block.endDate,
+                  },
+                  busyBlock: {
+                    startDate: exceptionBlock.localStartDate,
+                    endDate: exceptionBlock.localEndDate,
+                  },
+                })
+              ) {
                 return true;
               }
             }
@@ -111,19 +85,18 @@ export class AvailabilityByProfessional {
                 .add(booking.blockDurationInMinutes, "minutes")
                 .format("YYYY-MM-DDTHH:mm:ss");
 
-              const isBlockInside =
-                block.startDate <= bookignStartDate &&
-                block.endDate >= bookignStartDate;
-
-              const isStartDateInside =
-                block.startDate >= bookignStartDate &&
-                block.startDate < bookingEndDate;
-
-              const isEndDateInside =
-                block.endDate > bookignStartDate &&
-                block.endDate < bookingEndDate;
-
-              if (isBlockInside || isStartDateInside || isEndDateInside) {
+              if (
+                this.isCollidedBlock({
+                  freeBlock: {
+                    startDate: block.startDate,
+                    endDate: block.endDate,
+                  },
+                  busyBlock: {
+                    startDate: bookignStartDate,
+                    endDate: bookingEndDate,
+                  },
+                })
+              ) {
                 return true;
               }
             }
@@ -137,5 +110,92 @@ export class AvailabilityByProfessional {
     return {
       blocks: calendarBlocks,
     };
+  }
+
+  async getCalendars(
+    professionalId: string,
+    startDate: string,
+    endDate: string
+  ) {
+    return await this.calendarRepository.findByProfessionalAndDateRange({
+      companyId: config.telemedicine.companyId,
+      officeId: config.telemedicine.officeId,
+      serviceId: config.telemedicine.serviceId,
+      professionalId: professionalId,
+      isEnabled: true,
+      startDate: startDate,
+      endDate: endDate,
+    });
+  }
+
+  async getExceptions(
+    professionalId: string,
+    startDate: string,
+    endDate: string
+  ) {
+    return await this.exceptionRepository.findByProfessionalAndDateRange({
+      serviceId: config.telemedicine.serviceId,
+      professionalId: professionalId,
+      isEnabled: true,
+      startDate: startDate,
+      endDate: endDate,
+    });
+  }
+
+  async getBookings(
+    professionalId: string,
+    startDate: string,
+    endDate: string
+  ) {
+    return await this.bookingRepository.findByProfessionalAndDateRange({
+      companyId: config.telemedicine.companyId,
+      officeId: config.telemedicine.officeId,
+      serviceId: config.telemedicine.serviceId,
+      professionalId: professionalId,
+      isEnabled: true,
+      startDate: startDate + "T00:00:00",
+      endDate: endDate + "T23:59:59",
+    });
+  }
+
+  getExceptionBlocks(exceptions: MedicapException[]) {
+    let blocks: ExceptionBlock[] = [];
+    for (const exception of exceptions) {
+      blocks = blocks.concat(
+        getExcepcionBlocks({
+          startDate: exception.startDate,
+          endDate: exception.endDate,
+          recurrence: exception.recurrence,
+          repeatRecurrenceEvery: exception.repeatRecurrenceEvery,
+          dayOfMonth: exception.dayOfMonth,
+          weekOfMonth: exception.weekOfMonth,
+          dayOfWeek: exception.dayOfWeek,
+          days: exception.days,
+        })
+      );
+    }
+    return blocks;
+  }
+
+  isCollidedBlock(props: {
+    freeBlock: { startDate: string; endDate: string };
+    busyBlock: {
+      startDate: string;
+      endDate: string;
+    };
+  }) {
+    const isBlockInside =
+      props.freeBlock.startDate <= props.busyBlock.startDate &&
+      props.freeBlock.endDate >= props.busyBlock.endDate;
+
+    const isStartBlockInside =
+      props.freeBlock.startDate >= props.busyBlock.startDate &&
+      props.freeBlock.startDate < props.busyBlock.endDate;
+
+    const isEndBlockInside =
+      props.freeBlock.endDate > props.busyBlock.startDate &&
+      props.freeBlock.endDate < props.busyBlock.endDate;
+
+    return isBlockInside || isStartBlockInside || isEndBlockInside;
   }
 }
