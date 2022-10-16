@@ -1,86 +1,66 @@
 import { config } from "@/domain/config";
 import { dayjs } from "@/domain/service/date";
 
-export function getCaledarBlocks(options: Options): CalendarBlock[] {
+export function getCaledarBlocks(options: CalendarOption): CalendarBlock[] {
   const blocks: CalendarBlock[] = [];
+  const localDateTimeFormat = "YYYY-MM-DDTHH:mm:ss";
 
   let localStartDate = dayjs.utc(options.startDate);
-  const localEndDate = dayjs.utc(options.endDate);
+  let localEndDate = dayjs.utc(options.endDate);
 
   while (localStartDate <= localEndDate) {
+    const currentDate = localStartDate.clone();
+
     for (const day of options.days) {
-      if (day.dayOfWeek !== localStartDate.isoWeekday()) {
+      if (day.dayOfWeek !== currentDate.isoWeekday()) {
         continue;
       }
 
       for (const block of day.blocks) {
-        const startTime = dayjs.tz(
-          block.startTime,
-          "HH:mm:ss",
-          config.timezone
+        let localStartDateTime = dayjs.utc(
+          currentDate.format("YYYY-MM-DD") + " " + block.startTime
         );
-        const endTime = dayjs.tz(block.endTime, "HH:mm:ss", config.timezone);
-
-        let localStartDateTime = localStartDate.add(
-          startTime.diff(startTime.startOf("day"))
-        );
-        const localEndDateTime = localStartDate.add(
-          endTime.diff(endTime.startOf("day"))
+        let localEndDateTime = dayjs.utc(
+          currentDate.format("YYYY-MM-DD") + " " + block.endTime
         );
 
         while (localStartDateTime <= localEndDateTime) {
-          const localBlockEndDateTime = localStartDateTime
-            .add(options.blockDurationInMinutes, "minute")
-            .add(-1, "second");
+          const localBlockStartDateTime = localStartDateTime.clone();
+          const localBlockEndDateTime = localStartDateTime.add(
+            options.blockDurationInMinutes,
+            "minute"
+          );
 
-          const isBlockInRange = localEndDateTime >= localBlockEndDateTime;
+          const isBlockInRange =
+            localEndDateTime >= localBlockEndDateTime.add(-1, "second");
           if (!isBlockInRange) {
             break;
           }
 
-          const isoLocalStartDateTime = localStartDateTime.format(
-            "YYYY-MM-DDTHH:mm:ss"
-          );
-          const isoLocalBlockEndDateTime = localBlockEndDateTime.format(
-            "YYYY-MM-DDTHH:mm:ss"
-          );
+          const isStartZoneValid =
+            localBlockStartDateTime.format(localDateTimeFormat) ===
+            dayjs
+              .tz(
+                localBlockStartDateTime.format(localDateTimeFormat),
+                config.timezone
+              )
+              .utc()
+              .tz(config.timezone)
+              .format(localDateTimeFormat);
 
-          const localStartDateTimeFromISO = dayjs.tz(
-            isoLocalStartDateTime,
-            config.timezone
-          );
-
-          const localBlockEndDateTimeFromISO = dayjs.tz(
-            isoLocalBlockEndDateTime,
-            config.timezone
-          );
-
-          const localStartDateOffsetIsValid =
-            isoLocalStartDateTime ===
-            localStartDateTimeFromISO.format("YYYY-MM-DDTHH:mm:ss");
-
-          if (localStartDateOffsetIsValid) {
+          if (isStartZoneValid) {
             const block: CalendarBlock = {
               durationInMinutes: options.blockDurationInMinutes,
-              offset: localStartDateTimeFromISO.format("Z"),
-              startDate: {
-                local: localStartDateTimeFromISO.format("YYYY-MM-DDTHH:mm:ss"),
-                utc: localStartDateTimeFromISO.utc().toISOString(),
-              },
-              endDate: {
-                local: localBlockEndDateTimeFromISO.format(
-                  "YYYY-MM-DDTHH:mm:ss"
-                ),
-                utc: localBlockEndDateTimeFromISO.utc().toISOString(),
-              },
+              startDate: localBlockStartDateTime.format(localDateTimeFormat),
+              endDate: localBlockEndDateTime.format(localDateTimeFormat),
             };
 
-            let blockDisabled = false;
+            let isBlockEnabled = true;
             if (options.shouldDisableBlock) {
-              blockDisabled = options.shouldDisableBlock(block);
+              isBlockEnabled = !options.shouldDisableBlock(block);
             }
 
-            if (!blockDisabled) {
+            if (isBlockEnabled) {
               blocks.push(block);
             }
           }
@@ -99,7 +79,7 @@ export function getCaledarBlocks(options: Options): CalendarBlock[] {
   return blocks;
 }
 
-export interface Options {
+export interface CalendarOption {
   startDate: string;
   endDate: string;
   blockDurationInMinutes: number;
@@ -112,13 +92,6 @@ export interface Options {
 
 export interface CalendarBlock {
   durationInMinutes: number;
-  offset: string;
-  startDate: {
-    local: string;
-    utc: string;
-  };
-  endDate: {
-    local: string;
-    utc: string;
-  };
+  startDate: string;
+  endDate: string;
 }

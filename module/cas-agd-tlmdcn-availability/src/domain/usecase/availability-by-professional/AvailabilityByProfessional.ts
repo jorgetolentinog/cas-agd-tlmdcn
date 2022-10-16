@@ -6,9 +6,8 @@ import { inject, injectable } from "tsyringe";
 import { AvailabilityByProfessionalRequest } from "./AvailabilityByProfessionalRequest";
 import { AvailabilityByProfessionalResponse } from "./AvailabilityByProfessionalResponse";
 import { ExceptionBlock, getExcepcionBlocks } from "./get-exception-blocks";
-import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks-2";
+import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks";
 import { dayjs } from "@/domain/service/date";
-import { MedicapCalendar } from "@/domain/schema/MedicapCalendar";
 import { MedicapException } from "@/domain/schema/MedicapException";
 
 @injectable()
