@@ -9,6 +9,7 @@ import { ExceptionBlock, getExcepcionBlocks } from "./get-exception-blocks";
 import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks";
 import { dayjs } from "@/domain/service/date";
 import { MedicapException } from "@/domain/schema/MedicapException";
+import { MedicapBooking } from "@/domain/schema/MedicapBooking";
 
 @injectable()
 export class AvailabilityByProfessional {
@@ -60,44 +61,12 @@ export class AvailabilityByProfessional {
           blockDurationInMinutes: calendar.blockDurationInMinutes,
           days: calendar.days,
           isShouldDisableBlock: (block) => {
-            for (const exceptionBlock of exceptionBlocks) {
-              if (
-                this.isCollidedBlock({
-                  freeBlock: {
-                    startDate: block.startDate,
-                    endDate: block.endDate,
-                  },
-                  colissionBlock: {
-                    startDate: exceptionBlock.startDate,
-                    endDate: exceptionBlock.endDate,
-                  },
-                })
-              ) {
-                return true;
-              }
+            if (this.isBlockDisabledByException(block, exceptionBlocks)) {
+              return true;
             }
 
-            for (const booking of bookings) {
-              const bookignStartDate = booking.date;
-              const bookingEndDate = dayjs
-                .utc(booking.date)
-                .add(booking.blockDurationInMinutes, "minutes")
-                .format("YYYY-MM-DDTHH:mm:ss");
-
-              if (
-                this.isCollidedBlock({
-                  freeBlock: {
-                    startDate: block.startDate,
-                    endDate: block.endDate,
-                  },
-                  colissionBlock: {
-                    startDate: bookignStartDate,
-                    endDate: bookingEndDate,
-                  },
-                })
-              ) {
-                return true;
-              }
+            if (this.isBlockDisabledByBooking(block, bookings)) {
+              return true;
             }
 
             return false;
@@ -174,6 +143,53 @@ export class AvailabilityByProfessional {
       );
     }
     return blocks;
+  }
+
+  isBlockDisabledByException(
+    block: CalendarBlock,
+    exceptionBlocks: ExceptionBlock[]
+  ) {
+    for (const exceptionBlock of exceptionBlocks) {
+      if (
+        this.isCollidedBlock({
+          freeBlock: {
+            startDate: block.startDate,
+            endDate: block.endDate,
+          },
+          colissionBlock: {
+            startDate: exceptionBlock.startDate,
+            endDate: exceptionBlock.endDate,
+          },
+        })
+      ) {
+        return true;
+      }
+    }
+  }
+
+  isBlockDisabledByBooking(block: CalendarBlock, bookings: MedicapBooking[]) {
+    for (const booking of bookings) {
+      const bookignStartDate = booking.date;
+      const bookingEndDate = dayjs
+        .utc(booking.date)
+        .add(booking.blockDurationInMinutes, "minutes")
+        .format("YYYY-MM-DDTHH:mm:ss");
+
+      if (
+        this.isCollidedBlock({
+          freeBlock: {
+            startDate: block.startDate,
+            endDate: block.endDate,
+          },
+          colissionBlock: {
+            startDate: bookignStartDate,
+            endDate: bookingEndDate,
+          },
+        })
+      ) {
+        return true;
+      }
+    }
   }
 
   isCollidedBlock(props: {
