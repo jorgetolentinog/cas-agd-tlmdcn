@@ -10,6 +10,8 @@ import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks";
 import { dayjs } from "@/domain/service/date";
 import { MedicapException } from "@/domain/schema/MedicapException";
 import { MedicapBooking } from "@/domain/schema/MedicapBooking";
+import { MedicapPreBookingRepository } from "@/domain/repository/MedicapPreBookingRepository";
+import { MedicapPreBooking } from "@/domain/schema/MedicapPreBooking";
 
 @injectable()
 export class AvailabilityByProfessional {
@@ -21,7 +23,10 @@ export class AvailabilityByProfessional {
     private exceptionRepository: MedicapExceptionRepository,
 
     @inject("MedicapBookingRepository")
-    private bookingRepository: MedicapBookingRepository
+    private bookingRepository: MedicapBookingRepository,
+
+    @inject("MedicapPreBookingRepository")
+    private preBookingRepository: MedicapPreBookingRepository
   ) {}
 
   async execute(
@@ -47,6 +52,12 @@ export class AvailabilityByProfessional {
       request.endDate
     );
 
+    const preBookings = await this.getPreBookings(
+      request.professionalId,
+      request.startDate,
+      request.endDate
+    );
+
     const exceptionBlocks = this.getExceptionBlocks(exceptions);
 
     let calendarBlocks: CalendarBlock[] = [];
@@ -66,6 +77,10 @@ export class AvailabilityByProfessional {
             }
 
             if (this.isBlockDisabledByBooking(block, bookings)) {
+              return true;
+            }
+
+            if (this.isBlockDisabledByPreBooking(block, preBookings)) {
               return true;
             }
 
@@ -126,6 +141,22 @@ export class AvailabilityByProfessional {
     });
   }
 
+  async getPreBookings(
+    professionalId: string,
+    startDate: string,
+    endDate: string
+  ) {
+    return await this.preBookingRepository.findByProfessionalAndDateRange({
+      companyId: config.telemedicine.companyId,
+      officeId: config.telemedicine.officeId,
+      serviceId: config.telemedicine.serviceId,
+      professionalId: professionalId,
+      isEnabled: true,
+      startDate: startDate + "T00:00:00",
+      endDate: endDate + "T23:59:59",
+    });
+  }
+
   getExceptionBlocks(exceptions: MedicapException[]) {
     let blocks: ExceptionBlock[] = [];
     for (const exception of exceptions) {
@@ -173,6 +204,34 @@ export class AvailabilityByProfessional {
       const bookingEndDate = dayjs
         .utc(booking.date)
         .add(booking.blockDurationInMinutes, "minutes")
+        .format("YYYY-MM-DDTHH:mm:ss");
+
+      if (
+        this.isCollidedBlock({
+          freeBlock: {
+            startDate: block.startDate,
+            endDate: block.endDate,
+          },
+          colissionBlock: {
+            startDate: bookignStartDate,
+            endDate: bookingEndDate,
+          },
+        })
+      ) {
+        return true;
+      }
+    }
+  }
+
+  isBlockDisabledByPreBooking(
+    block: CalendarBlock,
+    preBookings: MedicapPreBooking[]
+  ) {
+    for (const preBooking of preBookings) {
+      const bookignStartDate = preBooking.date;
+      const bookingEndDate = dayjs
+        .utc(preBooking.date)
+        .add(preBooking.blockDurationInMinutes, "minutes")
         .format("YYYY-MM-DDTHH:mm:ss");
 
       if (
