@@ -29,9 +29,9 @@ export class DynamoDBMedicapPreBookingRepository
           updatedAt: preBooking.updatedAt,
 
           // Interno
-          _pk: preBooking.id,
-          _sk: preBooking.id,
-          _gsi1pk: `${preBooking.companyId}#${preBooking.officeId}#${preBooking.serviceId}#${preBooking.professionalId}#${preBooking.isEnabled}`,
+          _pk: `medicap-pre-booking#${preBooking.id}`,
+          _sk: `medicap-pre-booking#${preBooking.id}`,
+          _gsi1pk: `medicap-pre-booking#companyId${preBooking.companyId}#officeId#${preBooking.officeId}#serviceId#${preBooking.serviceId}#professionalId#${preBooking.professionalId}#isEnabled#${preBooking.isEnabled}`,
           _gsi1sk: preBooking.date,
         },
         ExpressionAttributeNames: {
@@ -56,12 +56,15 @@ export class DynamoDBMedicapPreBookingRepository
       updatedAt: preBooking.updatedAt,
 
       // Interno
-      _gsi1pk: `${preBooking.companyId}#${preBooking.officeId}#${preBooking.serviceId}#${preBooking.professionalId}#${preBooking.isEnabled}`,
+      _gsi1pk: `medicap-pre-booking#companyId${preBooking.companyId}#officeId#${preBooking.officeId}#serviceId#${preBooking.serviceId}#professionalId#${preBooking.professionalId}#isEnabled#${preBooking.isEnabled}`,
       _gsi1sk: preBooking.date,
     };
 
     let updateExpression = "set ";
-    const expressionAttributeNames: Record<string, string> = { "#_pk": "_pk" };
+    const expressionAttributeNames: Record<string, string> = {
+      "#_pk": "_pk",
+      "#_sk": "_sk",
+    };
     const expressionAttributeValues: Record<string, unknown> = {};
     for (const prop in attrs) {
       const value = (attrs as Record<string, unknown>)[prop] ?? null;
@@ -75,12 +78,12 @@ export class DynamoDBMedicapPreBookingRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: preBooking.id,
-          _sk: preBooking.id,
+          _pk: `medicap-pre-booking#${preBooking.id}`,
+          _sk: `medicap-pre-booking#${preBooking.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
-          "attribute_exists(#_pk) and #updatedAt < :updatedAt",
+          "attribute_exists(#_pk) and attribute_exists(#_sk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
@@ -94,8 +97,8 @@ export class DynamoDBMedicapPreBookingRepository
         KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
         ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": preBookingId,
-          ":_sk": preBookingId,
+          ":_pk": `medicap-pre-booking#${preBookingId}`,
+          ":_sk": `medicap-pre-booking#${preBookingId}`,
         },
       })
       .promise();

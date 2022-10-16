@@ -26,15 +26,17 @@ export class DynamoDBMedicapReleaseRepository
           updatedAt: release.updatedAt,
 
           // Interno
-          _pk: `medicap-release:${release.id}`,
-          _sk: `medicap-release:${release.id}`,
-          _gsi1pk: `medicap-release#serviceId:${release.serviceId}#professionalId:${release.professionalId}#isEnabled:${release.isEnabled}`,
+          _pk: `medicap-release#${release.id}`,
+          _sk: `medicap-release#${release.id}`,
+          _gsi1pk: `medicap-release#serviceId#${release.serviceId}#professionalId#${release.professionalId}#isEnabled#${release.isEnabled}`,
           _gsi1sk: release.date,
         },
         ExpressionAttributeNames: {
           "#_pk": "_pk",
+          "#_sk": "_sk",
         },
-        ConditionExpression: "attribute_not_exists(#_pk)",
+        ConditionExpression:
+          "attribute_not_exists(#_pk) and attribute_not_exists(#_sk)",
       })
       .promise();
   }
@@ -50,12 +52,15 @@ export class DynamoDBMedicapReleaseRepository
       updatedAt: release.updatedAt,
 
       // Interno
-      _gsi1pk: `medicap-release#serviceId:${release.serviceId}#professionalId:${release.professionalId}#isEnabled:${release.isEnabled}`,
+      _gsi1pk: `medicap-release#serviceId#${release.serviceId}#professionalId#${release.professionalId}#isEnabled#${release.isEnabled}`,
       _gsi1sk: release.date,
     };
 
     let updateExpression = "set ";
-    const expressionAttributeNames: Record<string, string> = { "#_pk": "_pk" };
+    const expressionAttributeNames: Record<string, string> = {
+      "#_pk": "_pk",
+      "#_sk": "_sk",
+    };
     const expressionAttributeValues: Record<string, unknown> = {};
     for (const prop in attrs) {
       const value = (attrs as Record<string, unknown>)[prop] ?? null;
@@ -69,12 +74,12 @@ export class DynamoDBMedicapReleaseRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: `medicap-release:${release.id}`,
-          _sk: `medicap-release:${release.id}`,
+          _pk: `medicap-release#${release.id}`,
+          _sk: `medicap-release#${release.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
-          "attribute_exists(#_pk) and #updatedAt < :updatedAt",
+          "attribute_exists(#_pk) and attribute_exists(#_sk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
@@ -88,8 +93,8 @@ export class DynamoDBMedicapReleaseRepository
         KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
         ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": `medicap-release:${releaseId}`,
-          ":_sk": `medicap-release:${releaseId}`,
+          ":_pk": `medicap-release#${releaseId}`,
+          ":_sk": `medicap-release#${releaseId}`,
         },
       })
       .promise();
