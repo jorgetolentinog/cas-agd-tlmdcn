@@ -6,7 +6,7 @@ import { inject, injectable } from "tsyringe";
 import { AvailabilityByProfessionalRequest } from "./AvailabilityByProfessionalRequest";
 import { AvailabilityByProfessionalResponse } from "./AvailabilityByProfessionalResponse";
 import { ExceptionBlock, getExcepcionBlocks } from "./get-exception-blocks";
-import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks";
+import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks-2";
 import { dayjs } from "@/domain/service/date";
 
 @injectable()
@@ -89,15 +89,23 @@ export class AvailabilityByProfessional {
           days: calendar.days,
           shouldDisableBlock: (block) => {
             for (const exceptionBlock of exceptionBlocks) {
-              const isStartDateInRange =
-                block.startDate.local >= exceptionBlock.localStartDate &&
-                block.startDate.local < exceptionBlock.localEndDate;
+              const isBlockInsideException =
+                exceptionBlock.localStartDate >= block.startDate &&
+                exceptionBlock.localEndDate <= block.endDate;
 
-              const isEndDateInRange =
-                block.endDate.local >= exceptionBlock.localStartDate &&
-                block.endDate.local < exceptionBlock.localEndDate;
+              const isStartBlockInsideException =
+                block.startDate >= exceptionBlock.localStartDate &&
+                block.startDate < exceptionBlock.localEndDate;
 
-              if (isStartDateInRange || isEndDateInRange) {
+              const isEndBlockInsideException =
+                block.endDate > exceptionBlock.localStartDate &&
+                block.endDate < exceptionBlock.localEndDate;
+
+              if (
+                isBlockInsideException ||
+                isStartBlockInsideException ||
+                isEndBlockInsideException
+              ) {
                 return true;
               }
             }
@@ -110,12 +118,12 @@ export class AvailabilityByProfessional {
                 .format("YYYY-MM-DDTHH:mm:ss");
 
               const isStartDateInRange =
-                block.startDate.local >= bookignStartDate &&
-                block.startDate.local < bookingEndDate;
+                block.startDate >= bookignStartDate &&
+                block.startDate < bookingEndDate;
 
               const isEndDateInRange =
-                block.endDate.local >= bookignStartDate &&
-                block.endDate.local < bookingEndDate;
+                block.endDate >= bookignStartDate &&
+                block.endDate < bookingEndDate;
 
               if (isStartDateInRange || isEndDateInRange) {
                 return true;

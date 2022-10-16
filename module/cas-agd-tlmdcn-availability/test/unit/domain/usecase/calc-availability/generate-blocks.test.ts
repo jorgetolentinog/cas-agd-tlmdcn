@@ -1,6 +1,6 @@
 import { dayjs } from "@/domain/service/date";
 import { config } from "@/domain/config";
-import { getCaledarBlocks } from "@/domain/usecase/availability-by-professional/get-calendar-blocks";
+import { getCaledarBlocks } from "@/domain/usecase/availability-by-professional/get-calendar-blocks-2";
 
 test("No debe devolver bloques con duración incompleta", async () => {
   // Arrange
@@ -28,27 +28,13 @@ test("No debe devolver bloques con duración incompleta", async () => {
   expect(blocks).toMatchObject([
     {
       durationInMinutes: 1,
-      offset: "-04:00",
-      startDate: {
-        local: "2022-08-01T23:58:00",
-        utc: "2022-08-02T03:58:00.000Z",
-      },
-      endDate: {
-        local: "2022-08-01T23:58:59",
-        utc: "2022-08-02T03:58:59.000Z",
-      },
+      startDate: "2022-08-01T23:58:00",
+      endDate: "2022-08-01T23:59:00",
     },
     {
       durationInMinutes: 1,
-      offset: "-04:00",
-      startDate: {
-        local: "2022-08-02T23:58:00",
-        utc: "2022-08-03T03:58:00.000Z",
-      },
-      endDate: {
-        local: "2022-08-02T23:58:59",
-        utc: "2022-08-03T03:58:59.000Z",
-      },
+      startDate: "2022-08-02T23:58:00",
+      endDate: "2022-08-02T23:59:00",
     },
   ]);
 });
@@ -83,39 +69,18 @@ test("No debe devolver bloques de días no configurados", async () => {
   expect(blocks).toMatchObject([
     {
       durationInMinutes: 30,
-      offset: "-04:00",
-      startDate: {
-        local: "2022-08-02T15:00:00",
-        utc: "2022-08-02T19:00:00.000Z",
-      },
-      endDate: {
-        local: "2022-08-02T15:29:59",
-        utc: "2022-08-02T19:29:59.000Z",
-      },
+      startDate: "2022-08-02T15:00:00",
+      endDate: "2022-08-02T15:30:00",
     },
     {
       durationInMinutes: 30,
-      offset: "-04:00",
-      startDate: {
-        local: "2022-08-04T15:00:00",
-        utc: "2022-08-04T19:00:00.000Z",
-      },
-      endDate: {
-        local: "2022-08-04T15:29:59",
-        utc: "2022-08-04T19:29:59.000Z",
-      },
+      startDate: "2022-08-04T15:00:00",
+      endDate: "2022-08-04T15:30:00",
     },
     {
       durationInMinutes: 30,
-      offset: "-04:00",
-      startDate: {
-        local: "2022-08-06T15:00:00",
-        utc: "2022-08-06T19:00:00.000Z",
-      },
-      endDate: {
-        local: "2022-08-06T15:29:59",
-        utc: "2022-08-06T19:29:59.000Z",
-      },
+      startDate: "2022-08-06T15:00:00",
+      endDate: "2022-08-06T15:30:00",
     },
   ]);
 });
@@ -137,7 +102,7 @@ test("No debe devolver bloque deshabilitado", async () => {
       },
     ],
     shouldDisableBlock(block) {
-      return block.startDate.local === "2022-08-01T15:20:00";
+      return block.startDate === "2022-08-01T15:20:00";
     },
   });
 
@@ -145,27 +110,13 @@ test("No debe devolver bloque deshabilitado", async () => {
   expect(blocks).toMatchObject([
     {
       durationInMinutes: 20,
-      offset: "-04:00",
-      startDate: {
-        local: "2022-08-01T15:00:00",
-        utc: "2022-08-01T19:00:00.000Z",
-      },
-      endDate: {
-        local: "2022-08-01T15:19:59",
-        utc: "2022-08-01T19:19:59.000Z",
-      },
+      startDate: "2022-08-01T15:00:00",
+      endDate: "2022-08-01T15:20:00",
     },
     {
       durationInMinutes: 20,
-      offset: "-04:00",
-      startDate: {
-        local: "2022-08-01T15:40:00",
-        utc: "2022-08-01T19:40:00.000Z",
-      },
-      endDate: {
-        local: "2022-08-01T15:59:59",
-        utc: "2022-08-01T19:59:59.000Z",
-      },
+      startDate: "2022-08-01T15:40:00",
+      endDate: "2022-08-01T16:00:00",
     },
   ]);
 });
@@ -196,27 +147,13 @@ test("No debe devolver hora local invalida cuando inicie el horario de verano", 
   expect(blocks).toMatchObject([
     {
       durationInMinutes: 60,
-      offset: "-04:00",
-      startDate: {
-        local: "2022-09-03T23:00:00",
-        utc: "2022-09-04T03:00:00.000Z",
-      },
-      endDate: {
-        local: "2022-09-03T23:59:59",
-        utc: "2022-09-04T03:59:59.000Z",
-      },
+      startDate: "2022-09-03T23:00:00",
+      endDate: "2022-09-04T00:00:00",
     },
     {
       durationInMinutes: 60,
-      offset: "-03:00",
-      startDate: {
-        local: "2022-09-04T01:00:00",
-        utc: "2022-09-04T04:00:00.000Z",
-      },
-      endDate: {
-        local: "2022-09-04T01:59:59",
-        utc: "2022-09-04T04:59:59.000Z",
-      },
+      startDate: "2022-09-04T01:00:00",
+      endDate: "2022-09-04T02:00:00",
     },
   ]);
 });
@@ -247,39 +184,18 @@ test("No debe devolver hora local invalida cuando termine el horario de verano",
   expect(blocks).toMatchObject([
     {
       durationInMinutes: 60,
-      offset: "-03:00",
-      startDate: {
-        local: "2023-04-01T22:00:00",
-        utc: "2023-04-02T01:00:00.000Z",
-      },
-      endDate: {
-        local: "2023-04-01T22:59:59",
-        utc: "2023-04-02T01:59:59.000Z",
-      },
+      startDate: "2023-04-01T22:00:00",
+      endDate: "2023-04-01T23:00:00",
     },
     {
       durationInMinutes: 60,
-      offset: "-03:00",
-      startDate: {
-        local: "2023-04-01T23:00:00",
-        utc: "2023-04-02T02:00:00.000Z",
-      },
-      endDate: {
-        local: "2023-04-01T23:59:59",
-        utc: "2023-04-02T02:59:59.000Z",
-      },
+      startDate: "2023-04-01T23:00:00",
+      endDate: "2023-04-02T00:00:00",
     },
     {
       durationInMinutes: 60,
-      offset: "-04:00",
-      startDate: {
-        local: "2023-04-02T00:00:00",
-        utc: "2023-04-02T04:00:00.000Z",
-      },
-      endDate: {
-        local: "2023-04-02T00:59:59",
-        utc: "2023-04-02T04:59:59.000Z",
-      },
+      startDate: "2023-04-02T00:00:00",
+      endDate: "2023-04-02T01:00:00",
     },
   ]);
 });
@@ -305,63 +221,28 @@ test("Deberia devolver un bloque el día jueves de cada semana de octubre", asyn
   expect(blocks).toMatchObject([
     {
       durationInMinutes: 30,
-      offset: "-03:00",
-      startDate: {
-        local: "2020-10-01T11:00:00",
-        utc: "2020-10-01T14:00:00.000Z",
-      },
-      endDate: {
-        local: "2020-10-01T11:29:59",
-        utc: "2020-10-01T14:29:59.000Z",
-      },
+      startDate: "2020-10-01T11:00:00",
+      endDate: "2020-10-01T11:30:00",
     },
     {
       durationInMinutes: 30,
-      offset: "-03:00",
-      startDate: {
-        local: "2020-10-08T11:00:00",
-        utc: "2020-10-08T14:00:00.000Z",
-      },
-      endDate: {
-        local: "2020-10-08T11:29:59",
-        utc: "2020-10-08T14:29:59.000Z",
-      },
+      startDate: "2020-10-08T11:00:00",
+      endDate: "2020-10-08T11:30:00",
     },
     {
       durationInMinutes: 30,
-      offset: "-03:00",
-      startDate: {
-        local: "2020-10-15T11:00:00",
-        utc: "2020-10-15T14:00:00.000Z",
-      },
-      endDate: {
-        local: "2020-10-15T11:29:59",
-        utc: "2020-10-15T14:29:59.000Z",
-      },
+      startDate: "2020-10-15T11:00:00",
+      endDate: "2020-10-15T11:30:00",
     },
     {
       durationInMinutes: 30,
-      offset: "-03:00",
-      startDate: {
-        local: "2020-10-22T11:00:00",
-        utc: "2020-10-22T14:00:00.000Z",
-      },
-      endDate: {
-        local: "2020-10-22T11:29:59",
-        utc: "2020-10-22T14:29:59.000Z",
-      },
+      startDate: "2020-10-22T11:00:00",
+      endDate: "2020-10-22T11:30:00",
     },
     {
       durationInMinutes: 30,
-      offset: "-03:00",
-      startDate: {
-        local: "2020-10-29T11:00:00",
-        utc: "2020-10-29T14:00:00.000Z",
-      },
-      endDate: {
-        local: "2020-10-29T11:29:59",
-        utc: "2020-10-29T14:29:59.000Z",
-      },
+      startDate: "2020-10-29T11:00:00",
+      endDate: "2020-10-29T11:30:00",
     },
   ]);
 });
