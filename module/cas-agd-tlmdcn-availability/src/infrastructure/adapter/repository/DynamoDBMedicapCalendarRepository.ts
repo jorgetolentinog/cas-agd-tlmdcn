@@ -34,9 +34,9 @@ export class DynamoDBMedicapCalendarRepository
           updatedAt: calendar.updatedAt,
 
           // Interno
-          _pk: `calendar#${calendar.id}`,
-          _sk: `calendar#${calendar.id}`,
-          _gsi1pk: `calendar#companyId#${calendar.companyId}#office#${calendar.officeId}#service#${calendar.serviceId}#professionalId#${calendar.professionalId}#isEnabled#${calendar.isEnabled}`,
+          _pk: `medicap-calendar#${calendar.id}`,
+          _sk: `medicap-calendar#${calendar.id}`,
+          _gsi1pk: `medicap-calendar#companyId#${calendar.companyId}#office#${calendar.officeId}#service#${calendar.serviceId}#professionalId#${calendar.professionalId}#isEnabled#${calendar.isEnabled}`,
           _gsi1sk: calendar.endDate,
         },
         ExpressionAttributeNames: {
@@ -67,7 +67,7 @@ export class DynamoDBMedicapCalendarRepository
       updatedAt: calendar.updatedAt,
 
       // Interno
-      _gsi1pk: `calendar#companyId#${calendar.companyId}#office#${calendar.officeId}#service#${calendar.serviceId}#professionalId#${calendar.professionalId}#isEnabled#${calendar.isEnabled}`,
+      _gsi1pk: `medicap-calendar#companyId#${calendar.companyId}#office#${calendar.officeId}#service#${calendar.serviceId}#professionalId#${calendar.professionalId}#isEnabled#${calendar.isEnabled}`,
       _gsi1sk: calendar.endDate,
     };
 
@@ -89,8 +89,8 @@ export class DynamoDBMedicapCalendarRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: `calendar#${calendar.id}`,
-          _sk: `calendar#${calendar.id}`,
+          _pk: `medicap-calendar#${calendar.id}`,
+          _sk: `medicap-calendar#${calendar.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
@@ -108,8 +108,8 @@ export class DynamoDBMedicapCalendarRepository
         KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
         ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": `calendar#${calendarId}`,
-          ":_sk": `calendar#${calendarId}`,
+          ":_pk": `medicap-calendar#${calendarId}`,
+          ":_sk": `medicap-calendar#${calendarId}`,
         },
       })
       .promise();
@@ -156,7 +156,7 @@ export class DynamoDBMedicapCalendarRepository
         "#_gsi1sk": "_gsi1sk",
       },
       ExpressionAttributeValues: {
-        ":_gsi1pk": `calendar#companyId#${props.companyId}#office#${props.officeId}#service#${props.serviceId}#professionalId#${props.professionalId}#isEnabled#${props.isEnabled}`,
+        ":_gsi1pk": `medicap-calendar#companyId#${props.companyId}#office#${props.officeId}#service#${props.serviceId}#professionalId#${props.professionalId}#isEnabled#${props.isEnabled}`,
         ":_gsi1sk": props.startDate,
       },
     };

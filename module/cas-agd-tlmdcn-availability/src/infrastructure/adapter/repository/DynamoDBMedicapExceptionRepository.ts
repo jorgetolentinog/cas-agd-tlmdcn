@@ -34,13 +34,15 @@ export class DynamoDBMedicapExceptionRepository
           updatedAt: exception.updatedAt,
 
           // Interno
-          _pk: exception.id,
-          _sk: exception.id,
+          _pk: `medicap-exception#${exception.id}`,
+          _sk: `medicap-exception#${exception.id}`,
         },
         ExpressionAttributeNames: {
           "#_pk": "_pk",
+          "#_sk": "_sk",
         },
-        ConditionExpression: "attribute_not_exists(#_pk)",
+        ConditionExpression:
+          "attribute_not_exists(#_pk) and attribute_not_exists(#_sk)",
       })
       .promise();
 
@@ -67,7 +69,10 @@ export class DynamoDBMedicapExceptionRepository
     };
 
     let updateExpression = "set ";
-    const expressionAttributeNames: Record<string, string> = { "#_pk": "_pk" };
+    const expressionAttributeNames: Record<string, string> = {
+      "#_pk": "_pk",
+      "#_sk": "_sk",
+    };
     const expressionAttributeValues: Record<string, unknown> = {};
     for (const prop in attrs) {
       const value = (attrs as Record<string, unknown>)[prop] ?? null;
@@ -81,12 +86,12 @@ export class DynamoDBMedicapExceptionRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: exception.id,
-          _sk: exception.id,
+          _pk: `medicap-exception#${exception.id}`,
+          _sk: `medicap-exception#${exception.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
-          "attribute_exists(#_pk) and #updatedAt < :updatedAt",
+          "attribute_exists(#_pk) and attribute_exists(#_sk) and #updatedAt < :updatedAt",
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
       })
@@ -104,8 +109,8 @@ export class DynamoDBMedicapExceptionRepository
         KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
         ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": exceptionId,
-          ":_sk": exceptionId,
+          ":_pk": `medicap-exception#${exceptionId}`,
+          ":_sk": `medicap-exception#${exceptionId}`,
         },
       })
       .promise();
@@ -149,7 +154,7 @@ export class DynamoDBMedicapExceptionRepository
         "#_gsi1sk": "_gsi1sk",
       },
       ExpressionAttributeValues: {
-        ":_gsi1pk": `${props.serviceId}#${props.professionalId}#${props.isEnabled}`,
+        ":_gsi1pk": `medicap-exception#serviceId#${props.serviceId}#professionalId#${props.professionalId}#isEnabled#${props.isEnabled}`,
         ":_gsi1sk": props.startDate,
       },
     };
@@ -192,9 +197,9 @@ export class DynamoDBMedicapExceptionRepository
       const keys: Record<string, string>[] = [];
       for (const serviceId of exception.serviceIds) {
         for (const professionalId of exception.professionalIds) {
-          const gsi1pk = `${serviceId}#${professionalId}#${exception.isEnabled}`;
+          const gsi1pk = `medicap-exception#serviceId#${serviceId}#professionalId#${professionalId}#isEnabled#${exception.isEnabled}`;
           keys.push({
-            _pk: exception.id,
+            _pk: `medicap-exception#${exception.id}`,
             _sk: gsi1pk,
             _gsi1pk: gsi1pk,
             _gsi1sk: exception.endDate,
@@ -250,7 +255,9 @@ export class DynamoDBMedicapExceptionRepository
         TableName: this._table,
         KeyConditionExpression: "#_pk = :_pk",
         ExpressionAttributeNames: { "#_pk": "_pk" },
-        ExpressionAttributeValues: { ":_pk": exceptionId },
+        ExpressionAttributeValues: {
+          ":_pk": `medicap-exception#${exceptionId}`,
+        },
       };
 
       const items: DocumentClient.AttributeMap[] = [];
@@ -259,7 +266,7 @@ export class DynamoDBMedicapExceptionRepository
       do {
         queryResult = await this.dynamodb.client.query(query).promise();
         queryResult.Items?.forEach((item) => {
-          if (item._sk !== exceptionId) {
+          if (item._sk !== `medicap-exception#${exceptionId}`) {
             items.push(item);
           }
         });
