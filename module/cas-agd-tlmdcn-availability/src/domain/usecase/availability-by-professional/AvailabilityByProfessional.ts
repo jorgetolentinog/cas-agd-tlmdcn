@@ -58,8 +58,6 @@ export class AvailabilityByProfessional {
         endDate: request.endDate + "T23:59:59",
       });
 
-    console.log("bookings length", bookings.length);
-
     let exceptionBlocks: ExceptionBlock[] = [];
     for (const exception of exceptions) {
       exceptionBlocks = exceptionBlocks.concat(
@@ -89,23 +87,19 @@ export class AvailabilityByProfessional {
           days: calendar.days,
           shouldDisableBlock: (block) => {
             for (const exceptionBlock of exceptionBlocks) {
-              const isBlockInsideException =
-                exceptionBlock.localStartDate >= block.startDate &&
-                exceptionBlock.localEndDate <= block.endDate;
+              const isBlockInside =
+                block.startDate <= exceptionBlock.localStartDate &&
+                block.endDate >= exceptionBlock.localEndDate;
 
-              const isStartBlockInsideException =
+              const isStartBlockInside =
                 block.startDate >= exceptionBlock.localStartDate &&
                 block.startDate < exceptionBlock.localEndDate;
 
-              const isEndBlockInsideException =
+              const isEndBlockInside =
                 block.endDate > exceptionBlock.localStartDate &&
                 block.endDate < exceptionBlock.localEndDate;
 
-              if (
-                isBlockInsideException ||
-                isStartBlockInsideException ||
-                isEndBlockInsideException
-              ) {
+              if (isBlockInside || isStartBlockInside || isEndBlockInside) {
                 return true;
               }
             }
@@ -117,15 +111,19 @@ export class AvailabilityByProfessional {
                 .add(booking.blockDurationInMinutes, "minutes")
                 .format("YYYY-MM-DDTHH:mm:ss");
 
-              const isStartDateInRange =
+              const isBlockInside =
+                block.startDate <= bookignStartDate &&
+                block.endDate >= bookignStartDate;
+
+              const isStartDateInside =
                 block.startDate >= bookignStartDate &&
                 block.startDate < bookingEndDate;
 
-              const isEndDateInRange =
-                block.endDate >= bookignStartDate &&
+              const isEndDateInside =
+                block.endDate > bookignStartDate &&
                 block.endDate < bookingEndDate;
 
-              if (isStartDateInRange || isEndDateInRange) {
+              if (isBlockInside || isStartDateInside || isEndDateInside) {
                 return true;
               }
             }
