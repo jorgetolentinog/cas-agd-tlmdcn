@@ -1,6 +1,6 @@
 import { dayjs } from "@/domain/service/date";
 
-export function getExcepcionBlocks(options: Options): ExceptionBlock[] {
+export function getExcepcionBlocks(options: ExceptionOption): ExceptionBlock[] {
   if (options.recurrence === "monthly") {
     if (
       options.dayOfMonth == null &&
@@ -103,7 +103,7 @@ export function getExcepcionBlocks(options: Options): ExceptionBlock[] {
   return blocks;
 }
 
-interface Options {
+interface ExceptionOption {
   startDate: string;
   endDate: string;
   recurrence: "weekly" | "monthly";
