@@ -26,9 +26,9 @@ export class DynamoDBMedicapReleaseRepository
           updatedAt: release.updatedAt,
 
           // Interno
-          _pk: `medicap-release#${release.id}`,
-          _sk: `medicap-release#${release.id}`,
-          _gsi1pk: `medicap-release#serviceId#${release.serviceId}#professionalId#${release.professionalId}#isEnabled#${release.isEnabled}`,
+          _pk: `medicapRelease#${release.id}`,
+          _sk: `medicapRelease#${release.id}`,
+          _gsi1pk: `medicapRelease#serviceId#${release.serviceId}#professionalId#${release.professionalId}#isEnabled#${release.isEnabled}`,
           _gsi1sk: release.date,
         },
         ExpressionAttributeNames: {
@@ -52,7 +52,7 @@ export class DynamoDBMedicapReleaseRepository
       updatedAt: release.updatedAt,
 
       // Interno
-      _gsi1pk: `medicap-release#serviceId#${release.serviceId}#professionalId#${release.professionalId}#isEnabled#${release.isEnabled}`,
+      _gsi1pk: `medicapRelease#serviceId#${release.serviceId}#professionalId#${release.professionalId}#isEnabled#${release.isEnabled}`,
       _gsi1sk: release.date,
     };
 
@@ -74,8 +74,8 @@ export class DynamoDBMedicapReleaseRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: `medicap-release#${release.id}`,
-          _sk: `medicap-release#${release.id}`,
+          _pk: `medicapRelease#${release.id}`,
+          _sk: `medicapRelease#${release.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
@@ -93,8 +93,8 @@ export class DynamoDBMedicapReleaseRepository
         KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
         ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": `medicap-release#${releaseId}`,
-          ":_sk": `medicap-release#${releaseId}`,
+          ":_pk": `medicapRelease#${releaseId}`,
+          ":_sk": `medicapRelease#${releaseId}`,
         },
       })
       .promise();

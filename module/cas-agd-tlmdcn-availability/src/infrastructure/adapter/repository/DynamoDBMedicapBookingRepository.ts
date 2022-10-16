@@ -31,9 +31,9 @@ export class DynamoDBMedicapBookingRepository
           updatedAt: booking.updatedAt,
 
           // Interno
-          _pk: `medicap-booking#${booking.id}`,
-          _sk: `medicap-booking#${booking.id}`,
-          _gsi1pk: `medicap-booking#companyId#${booking.companyId}#officeId#${booking.officeId}#serviceId#${booking.serviceId}#professionalId#${booking.professionalId}#isEnabled#${booking.isEnabled}`,
+          _pk: `medicapBooking#${booking.id}`,
+          _sk: `medicapBooking#${booking.id}`,
+          _gsi1pk: `medicapBooking#companyId#${booking.companyId}#officeId#${booking.officeId}#serviceId#${booking.serviceId}#professionalId#${booking.professionalId}#isEnabled#${booking.isEnabled}`,
           _gsi1sk: booking.date,
         },
         ExpressionAttributeNames: {
@@ -61,7 +61,7 @@ export class DynamoDBMedicapBookingRepository
       updatedAt: booking.updatedAt,
 
       // Interno
-      _gsi1pk: `medicap-booking#companyId#${booking.companyId}#officeId#${booking.officeId}#serviceId#${booking.serviceId}#professionalId#${booking.professionalId}#isEnabled#${booking.isEnabled}`,
+      _gsi1pk: `medicapBooking#companyId#${booking.companyId}#officeId#${booking.officeId}#serviceId#${booking.serviceId}#professionalId#${booking.professionalId}#isEnabled#${booking.isEnabled}`,
       _gsi1sk: booking.date,
     };
 
@@ -83,8 +83,8 @@ export class DynamoDBMedicapBookingRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: `medicap-booking#${booking.id}`,
-          _sk: `medicap-booking#${booking.id}`,
+          _pk: `medicapBooking#${booking.id}`,
+          _sk: `medicapBooking#${booking.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
@@ -102,8 +102,8 @@ export class DynamoDBMedicapBookingRepository
         KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
         ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": `medicap-booking#${bookingId}`,
-          ":_sk": `medicap-booking#${bookingId}`,
+          ":_pk": `medicapBooking#${bookingId}`,
+          ":_sk": `medicapBooking#${bookingId}`,
         },
       })
       .promise();
@@ -148,7 +148,7 @@ export class DynamoDBMedicapBookingRepository
         "#_gsi1sk": "_gsi1sk",
       },
       ExpressionAttributeValues: {
-        ":_gsi1pk": `medicap-booking#companyId#${props.companyId}#officeId#${props.officeId}#serviceId#${props.serviceId}#professionalId#${props.professionalId}#isEnabled#${props.isEnabled}`,
+        ":_gsi1pk": `medicapBooking#companyId#${props.companyId}#officeId#${props.officeId}#serviceId#${props.serviceId}#professionalId#${props.professionalId}#isEnabled#${props.isEnabled}`,
         ":_gsi1sk_startDate": props.startDate,
         ":_gsi1sk_endDate": props.endDate,
       },

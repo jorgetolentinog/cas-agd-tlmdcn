@@ -34,8 +34,8 @@ export class DynamoDBMedicapExceptionRepository
           updatedAt: exception.updatedAt,
 
           // Interno
-          _pk: `medicap-exception#${exception.id}`,
-          _sk: `medicap-exception#${exception.id}`,
+          _pk: `medicapException#${exception.id}`,
+          _sk: `medicapException#${exception.id}`,
         },
         ExpressionAttributeNames: {
           "#_pk": "_pk",
@@ -86,8 +86,8 @@ export class DynamoDBMedicapExceptionRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: `medicap-exception#${exception.id}`,
-          _sk: `medicap-exception#${exception.id}`,
+          _pk: `medicapException#${exception.id}`,
+          _sk: `medicapException#${exception.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
@@ -109,8 +109,8 @@ export class DynamoDBMedicapExceptionRepository
         KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
         ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": `medicap-exception#${exceptionId}`,
-          ":_sk": `medicap-exception#${exceptionId}`,
+          ":_pk": `medicapException#${exceptionId}`,
+          ":_sk": `medicapException#${exceptionId}`,
         },
       })
       .promise();
@@ -154,7 +154,7 @@ export class DynamoDBMedicapExceptionRepository
         "#_gsi1sk": "_gsi1sk",
       },
       ExpressionAttributeValues: {
-        ":_gsi1pk": `medicap-exception#serviceId#${props.serviceId}#professionalId#${props.professionalId}#isEnabled#${props.isEnabled}`,
+        ":_gsi1pk": `medicapException#serviceId#${props.serviceId}#professionalId#${props.professionalId}#isEnabled#${props.isEnabled}`,
         ":_gsi1sk": props.startDate,
       },
     };
@@ -197,9 +197,9 @@ export class DynamoDBMedicapExceptionRepository
       const keys: Record<string, string>[] = [];
       for (const serviceId of exception.serviceIds) {
         for (const professionalId of exception.professionalIds) {
-          const gsi1pk = `medicap-exception#serviceId#${serviceId}#professionalId#${professionalId}#isEnabled#${exception.isEnabled}`;
+          const gsi1pk = `medicapException#serviceId#${serviceId}#professionalId#${professionalId}#isEnabled#${exception.isEnabled}`;
           keys.push({
-            _pk: `medicap-exception#${exception.id}`,
+            _pk: `medicapException#${exception.id}`,
             _sk: gsi1pk,
             _gsi1pk: gsi1pk,
             _gsi1sk: exception.endDate,
@@ -256,7 +256,7 @@ export class DynamoDBMedicapExceptionRepository
         KeyConditionExpression: "#_pk = :_pk",
         ExpressionAttributeNames: { "#_pk": "_pk" },
         ExpressionAttributeValues: {
-          ":_pk": `medicap-exception#${exceptionId}`,
+          ":_pk": `medicapException#${exceptionId}`,
         },
       };
 
@@ -266,7 +266,7 @@ export class DynamoDBMedicapExceptionRepository
       do {
         queryResult = await this.dynamodb.client.query(query).promise();
         queryResult.Items?.forEach((item) => {
-          if (item._sk !== `medicap-exception#${exceptionId}`) {
+          if (item._sk !== `medicapException#${exceptionId}`) {
             items.push(item);
           }
         });

@@ -29,9 +29,9 @@ export class DynamoDBMedicapPreBookingRepository
           updatedAt: preBooking.updatedAt,
 
           // Interno
-          _pk: `medicap-pre-booking#${preBooking.id}`,
-          _sk: `medicap-pre-booking#${preBooking.id}`,
-          _gsi1pk: `medicap-pre-booking#companyId${preBooking.companyId}#officeId#${preBooking.officeId}#serviceId#${preBooking.serviceId}#professionalId#${preBooking.professionalId}#isEnabled#${preBooking.isEnabled}`,
+          _pk: `medicapPreBooking#${preBooking.id}`,
+          _sk: `medicapPreBooking#${preBooking.id}`,
+          _gsi1pk: `medicapPreBooking#companyId${preBooking.companyId}#officeId#${preBooking.officeId}#serviceId#${preBooking.serviceId}#professionalId#${preBooking.professionalId}#isEnabled#${preBooking.isEnabled}`,
           _gsi1sk: preBooking.date,
         },
         ExpressionAttributeNames: {
@@ -56,7 +56,7 @@ export class DynamoDBMedicapPreBookingRepository
       updatedAt: preBooking.updatedAt,
 
       // Interno
-      _gsi1pk: `medicap-pre-booking#companyId${preBooking.companyId}#officeId#${preBooking.officeId}#serviceId#${preBooking.serviceId}#professionalId#${preBooking.professionalId}#isEnabled#${preBooking.isEnabled}`,
+      _gsi1pk: `medicapPreBooking#companyId${preBooking.companyId}#officeId#${preBooking.officeId}#serviceId#${preBooking.serviceId}#professionalId#${preBooking.professionalId}#isEnabled#${preBooking.isEnabled}`,
       _gsi1sk: preBooking.date,
     };
 
@@ -78,8 +78,8 @@ export class DynamoDBMedicapPreBookingRepository
       .update({
         TableName: this._table,
         Key: {
-          _pk: `medicap-pre-booking#${preBooking.id}`,
-          _sk: `medicap-pre-booking#${preBooking.id}`,
+          _pk: `medicapPreBooking#${preBooking.id}`,
+          _sk: `medicapPreBooking#${preBooking.id}`,
         },
         UpdateExpression: updateExpression,
         ConditionExpression:
@@ -97,8 +97,8 @@ export class DynamoDBMedicapPreBookingRepository
         KeyConditionExpression: "#_pk = :_pk and #_sk = :_sk",
         ExpressionAttributeNames: { "#_pk": "_pk", "#_sk": "_sk" },
         ExpressionAttributeValues: {
-          ":_pk": `medicap-pre-booking#${preBookingId}`,
-          ":_sk": `medicap-pre-booking#${preBookingId}`,
+          ":_pk": `medicapPreBooking#${preBookingId}`,
+          ":_sk": `medicapPreBooking#${preBookingId}`,
         },
       })
       .promise();
