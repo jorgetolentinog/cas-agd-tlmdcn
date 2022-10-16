@@ -101,7 +101,7 @@ test("No debe devolver bloque deshabilitado", async () => {
         blocks: [{ startTime: "15:00:00", endTime: "15:59:59" }],
       },
     ],
-    shouldDisableBlock(block) {
+    isShouldDisableBlock(block) {
       return block.startDate === "2022-08-01T15:20:00";
     },
   });

@@ -56,8 +56,8 @@ export function getCaledarBlocks(options: CalendarOption): CalendarBlock[] {
             };
 
             let isBlockEnabled = true;
-            if (options.shouldDisableBlock) {
-              isBlockEnabled = !options.shouldDisableBlock(block);
+            if (options.isShouldDisableBlock) {
+              isBlockEnabled = !options.isShouldDisableBlock(block);
             }
 
             if (isBlockEnabled) {
@@ -87,7 +87,7 @@ export interface CalendarOption {
     dayOfWeek: number;
     blocks: { startTime: string; endTime: string }[];
   }[];
-  shouldDisableBlock?: (block: CalendarBlock) => boolean;
+  isShouldDisableBlock?: (block: CalendarBlock) => boolean;
 }
 
 export interface CalendarBlock {

@@ -59,7 +59,7 @@ export class AvailabilityByProfessional {
           endDate: calendarEndDate,
           blockDurationInMinutes: calendar.blockDurationInMinutes,
           days: calendar.days,
-          shouldDisableBlock: (block) => {
+          isShouldDisableBlock: (block) => {
             for (const exceptionBlock of exceptionBlocks) {
               if (
                 this.isCollidedBlock({
