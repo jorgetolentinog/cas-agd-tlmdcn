@@ -69,8 +69,8 @@ export class AvailabilityByProfessional {
                     endDate: block.endDate,
                   },
                   colissionBlock: {
-                    startDate: exceptionBlock.localStartDate,
-                    endDate: exceptionBlock.localEndDate,
+                    startDate: exceptionBlock.startDate,
+                    endDate: exceptionBlock.endDate,
                   },
                 })
               ) {

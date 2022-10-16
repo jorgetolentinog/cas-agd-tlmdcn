@@ -75,8 +75,8 @@ export function getExcepcionBlocks(options: Options): ExceptionBlock[] {
       for (const block of day.blocks) {
         const blockDate = localStartDate.format("YYYY-MM-DD");
         blocks.push({
-          localStartDate: blockDate + "T" + block.startTime,
-          localEndDate: blockDate + "T" + block.endTime,
+          startDate: blockDate + "T" + block.startTime,
+          endDate: blockDate + "T" + block.endTime,
         });
       }
     }
@@ -118,6 +118,6 @@ interface Options {
 }
 
 export interface ExceptionBlock {
-  localStartDate: string;
-  localEndDate: string;
+  startDate: string;
+  endDate: string;
 }
