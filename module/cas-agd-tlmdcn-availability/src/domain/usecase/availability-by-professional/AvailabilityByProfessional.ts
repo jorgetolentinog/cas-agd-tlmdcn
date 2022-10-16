@@ -68,7 +68,7 @@ export class AvailabilityByProfessional {
                     startDate: block.startDate,
                     endDate: block.endDate,
                   },
-                  busyBlock: {
+                  colissionBlock: {
                     startDate: exceptionBlock.localStartDate,
                     endDate: exceptionBlock.localEndDate,
                   },
@@ -91,7 +91,7 @@ export class AvailabilityByProfessional {
                     startDate: block.startDate,
                     endDate: block.endDate,
                   },
-                  busyBlock: {
+                  colissionBlock: {
                     startDate: bookignStartDate,
                     endDate: bookingEndDate,
                   },
@@ -179,22 +179,22 @@ export class AvailabilityByProfessional {
 
   isCollidedBlock(props: {
     freeBlock: { startDate: string; endDate: string };
-    busyBlock: {
+    colissionBlock: {
       startDate: string;
       endDate: string;
     };
   }) {
     const isBlockInside =
-      props.freeBlock.startDate <= props.busyBlock.startDate &&
-      props.freeBlock.endDate >= props.busyBlock.endDate;
+      props.freeBlock.startDate <= props.colissionBlock.startDate &&
+      props.freeBlock.endDate >= props.colissionBlock.endDate;
 
     const isStartBlockInside =
-      props.freeBlock.startDate >= props.busyBlock.startDate &&
-      props.freeBlock.startDate < props.busyBlock.endDate;
+      props.freeBlock.startDate >= props.colissionBlock.startDate &&
+      props.freeBlock.startDate < props.colissionBlock.endDate;
 
     const isEndBlockInside =
-      props.freeBlock.endDate > props.busyBlock.startDate &&
-      props.freeBlock.endDate < props.busyBlock.endDate;
+      props.freeBlock.endDate > props.colissionBlock.startDate &&
+      props.freeBlock.endDate < props.colissionBlock.endDate;
 
     return isBlockInside || isStartBlockInside || isEndBlockInside;
   }
