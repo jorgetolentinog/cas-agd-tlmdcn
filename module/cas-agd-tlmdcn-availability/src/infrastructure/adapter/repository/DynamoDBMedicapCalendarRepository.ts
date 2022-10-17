@@ -1,7 +1,7 @@
 import { MedicapCalendarRepository } from "@/domain/repository/MedicapCalendarRepository";
 import { MedicapCalendar } from "@/domain/schema/MedicapCalendar";
 import { injectable } from "tsyringe";
-import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
+import { DynamoDBDocument } from "@/infrastructure/aws/dynamodb/DynamoDBDocument";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 @injectable()

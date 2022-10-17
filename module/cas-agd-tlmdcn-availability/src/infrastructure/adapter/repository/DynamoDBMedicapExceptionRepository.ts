@@ -1,9 +1,9 @@
 import { MedicapExceptionRepository } from "@/domain/repository/MedicapExceptionRepository";
 import { MedicapException } from "@/domain/schema/MedicapException";
 import { injectable } from "tsyringe";
-import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
+import { DynamoDBDocument } from "@/infrastructure/aws/dynamodb/DynamoDBDocument";
+import { chunkArray } from "@/infrastructure/aws/dynamodb/chunk-array";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
-import { chunkArray } from "@/domain/service/chunk-array";
 
 @injectable()
 export class DynamoDBMedicapExceptionRepository

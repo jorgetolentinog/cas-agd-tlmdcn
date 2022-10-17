@@ -6,9 +6,9 @@ import { MedicapCalendarRepository } from "@/domain/repository/MedicapCalendarRe
 import { MedicapExceptionRepository } from "@/domain/repository/MedicapExceptionRepository";
 import { DynamoDBMedicapBookingRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapBookingRepository";
 import { DynamoDBMedicapPreBookingRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapPreBookingRepository";
-import { DynamoDBMedicapReleaseRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapReleaseRepository";
 import { DynamoDBMedicapCalendarRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapCalendarRepository";
 import { DynamoDBMedicapExceptionRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapExceptionRepository";
+import { DynamoDBMedicapReleaseRepository } from "@/infrastructure/adapter/repository/DynamoDBMedicapReleaseRepository";
 
 container.register<MedicapBookingRepository>(
   "MedicapBookingRepository",

@@ -1,7 +1,7 @@
 import { MedicapPreBookingRepository } from "@/domain/repository/MedicapPreBookingRepository";
 import { MedicapPreBooking } from "@/domain/schema/MedicapPreBooking";
 import { injectable } from "tsyringe";
-import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
+import { DynamoDBDocument } from "@/infrastructure/aws/dynamodb/DynamoDBDocument";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 @injectable()

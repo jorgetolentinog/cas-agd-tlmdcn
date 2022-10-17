@@ -1,7 +1,7 @@
 import { MedicapReleaseRepository } from "@/domain/repository/MedicapReleaseRepository";
 import { MedicapRelease } from "@/domain/schema/MedicapRelease";
 import { injectable } from "tsyringe";
-import { DynamoDBDocument } from "@/infrastructure/aws/DynamoDBDocument";
+import { DynamoDBDocument } from "@/infrastructure/aws/dynamodb/DynamoDBDocument";
 
 @injectable()
 export class DynamoDBMedicapReleaseRepository
