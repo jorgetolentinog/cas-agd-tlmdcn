@@ -9,13 +9,12 @@ tags:
   - name: availability
     description: Módulo de disponibilidad
 paths:
-  /availability:
+  /availability/professional/{professionalId}:
     get:
       tags:
         - availability
-      summary: recibe mensajes de medicap
       parameters:
-        - in: query
+        - in: path
           name: professionalId
           schema:
             type: string
@@ -25,13 +24,13 @@ paths:
           name: startDate
           schema:
             type: string
-            example: "2022-10-01"
+            example: "2022-11-01"
           required: true
         - in: query
           name: endDate
           schema:
             type: string
-            example: "2022-11-01"
+            example: "2022-12-01"
           required: true
       responses:
         200:
