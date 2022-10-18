@@ -1,20 +1,20 @@
+import { inject, injectable } from "tsyringe";
 import { config } from "@/domain/config";
 import { MedicapBookingRepository } from "@/domain/repository/MedicapBookingRepository";
 import { MedicapCalendarRepository } from "@/domain/repository/MedicapCalendarRepository";
 import { MedicapExceptionRepository } from "@/domain/repository/MedicapExceptionRepository";
-import { inject, injectable } from "tsyringe";
-import { AvailabilityByProfessionalRequest } from "./AvailabilityByProfessionalRequest";
-import { AvailabilityByProfessionalResponse } from "./AvailabilityByProfessionalResponse";
-import { ExceptionBlock, getExcepcionBlocks } from "./get-exception-blocks";
-import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks";
 import { dayjs } from "@/domain/service/date";
 import { MedicapException } from "@/domain/schema/MedicapException";
 import { MedicapBooking } from "@/domain/schema/MedicapBooking";
 import { MedicapPreBookingRepository } from "@/domain/repository/MedicapPreBookingRepository";
 import { MedicapPreBooking } from "@/domain/schema/MedicapPreBooking";
+import { AvailabilityProfessionalRequest } from "./AvailabilityProfessionalRequest";
+import { AvailabilityProfessionalResponse } from "./AvailabilityProfessionalResponse";
+import { ExceptionBlock, getExcepcionBlocks } from "./get-exception-blocks";
+import { CalendarBlock, getCaledarBlocks } from "./get-calendar-blocks";
 
 @injectable()
-export class AvailabilityByProfessional {
+export class AvailabilityProfessional {
   constructor(
     @inject("MedicapCalendarRepository")
     private calendarRepository: MedicapCalendarRepository,
@@ -30,8 +30,8 @@ export class AvailabilityByProfessional {
   ) {}
 
   async execute(
-    request: AvailabilityByProfessionalRequest
-  ): Promise<AvailabilityByProfessionalResponse> {
+    request: AvailabilityProfessionalRequest
+  ): Promise<AvailabilityProfessionalResponse> {
     const minStartDate = this.getMinStartDate();
     const maxEndDate = this.getMaxEndDate();
 
@@ -72,7 +72,7 @@ export class AvailabilityByProfessional {
 
     const exceptionBlocks = this.getExceptionBlocks(exceptions);
 
-    let response: AvailabilityByProfessionalResponse = [];
+    let response: AvailabilityProfessionalResponse = [];
 
     for (const calendar of calendars) {
       const calendarStartDate =

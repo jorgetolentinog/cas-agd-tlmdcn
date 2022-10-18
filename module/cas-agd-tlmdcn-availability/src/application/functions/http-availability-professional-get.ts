@@ -1,5 +1,5 @@
 import { apiGatewayHandler } from "@/application/shared/api-gateway-handler";
-import { AvailabilityByProfessional } from "@/domain/usecase/availability-by-professional/AvailabilityByProfessional";
+import { AvailabilityProfessional } from "@/domain/usecase/availability-professional/AvailabilityProfessional";
 import { container } from "tsyringe";
 import { z } from "zod";
 
@@ -14,7 +14,7 @@ export const handler = apiGatewayHandler(async (event) => {
     throw new Error("Invalid path parameters");
   }
 
-  const response = await container.resolve(AvailabilityByProfessional).execute({
+  const response = await container.resolve(AvailabilityProfessional).execute({
     professionalId: params.data.professionalId,
     startDate: params.data.startDate,
     endDate: params.data.endDate,
