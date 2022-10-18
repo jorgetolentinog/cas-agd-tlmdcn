@@ -109,7 +109,7 @@ export class AvailabilityProfessional {
           startDate: calendarBlock.startDate,
           endDate: calendarBlock.endDate,
           durationInMinutes: calendarBlock.durationInMinutes,
-          conditionsOfService: calendar.conditionsOfService,
+          conditionOfService: calendar.conditionOfService,
           medicalAreaIds: calendar.medicalAreaIds,
           interestAreaIds: calendar.interestAreaIds,
         }))

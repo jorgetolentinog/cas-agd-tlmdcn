@@ -5,7 +5,7 @@ export type AvailabilityProfessionalResponse = {
   durationInMinutes: number;
   medicalAreaIds: string[];
   interestAreaIds: string[];
-  conditionsOfService: {
+  conditionOfService: {
     minAge?: number;
     maxAge?: number;
     gender?: string;

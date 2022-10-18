@@ -10,7 +10,7 @@ export interface MedicapCalendar {
   interestAreaIds: string[];
   professionalId: string;
   blockDurationInMinutes: number;
-  conditionsOfService: {
+  conditionOfService: {
     minAge?: number;
     maxAge?: number;
     gender?: "F" | "M";

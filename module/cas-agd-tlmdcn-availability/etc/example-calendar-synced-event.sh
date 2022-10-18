@@ -26,7 +26,7 @@ aws lambda invoke /dev/null \
         ],
         "professionalId": "2048",
         "blockDurationInMinutes": 25,
-        "conditionsOfService": {},
+        "conditionOfService": {},
         "days": [
           {
             "dayOfWeek": 1,

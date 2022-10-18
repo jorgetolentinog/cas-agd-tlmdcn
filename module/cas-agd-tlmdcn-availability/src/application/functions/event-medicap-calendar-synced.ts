@@ -22,7 +22,7 @@ export const handler = async (event: EventBridgeEvent<string, unknown>) => {
     interestAreaIds: detail.data.body.interestAreaIds,
     professionalId: detail.data.body.professionalId,
     blockDurationInMinutes: detail.data.body.blockDurationInMinutes,
-    conditionsOfService: detail.data.body.conditionsOfService,
+    conditionOfService: detail.data.body.conditionOfService,
     days: detail.data.body.days,
     createdAt: detail.data.body.createdAt,
     updatedAt: detail.data.body.updatedAt,
@@ -43,7 +43,7 @@ function detailParser(detail: unknown) {
       interestAreaIds: z.array(z.string()),
       professionalId: z.string(),
       blockDurationInMinutes: z.number(),
-      conditionsOfService: z.object({
+      conditionOfService: z.object({
         minAge: z.number().optional(),
         maxAge: z.number().optional(),
         gender: z.enum(["F", "M"]).optional(),
