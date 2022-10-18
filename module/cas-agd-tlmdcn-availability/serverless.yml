@@ -41,11 +41,11 @@ custom:
       "Fn::ImportValue": cas-medicap-${sls:stage}-EventBusName
 
 functions:
-  httpAvailabilityGet:
-    handler: ./src/application/functions/http-availability-get.handler
+  httpAvailabilityProfessionalGet:
+    handler: ./src/application/functions/http-availability-professional-get.handler
     events:
       - http:
-          path: /availability
+          path: /availability/professional/{professionalId}
           method: get
           cors: true
 

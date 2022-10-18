@@ -4,16 +4,20 @@ import { container } from "tsyringe";
 import { z } from "zod";
 
 export const handler = apiGatewayHandler(async (event) => {
-  const query = queryParser(event.queryStringParameters);
+  const params = paramsParser({
+    professionalId: event.pathParameters?.professionalId,
+    startDate: event.queryStringParameters?.startDate,
+    endDate: event.queryStringParameters?.endDate,
+  });
 
-  if (!query.success) {
+  if (!params.success) {
     throw new Error("Invalid path parameters");
   }
 
   const response = await container.resolve(AvailabilityByProfessional).execute({
-    professionalId: query.data.professionalId,
-    startDate: query.data.startDate,
-    endDate: query.data.endDate,
+    professionalId: params.data.professionalId,
+    startDate: params.data.startDate,
+    endDate: params.data.endDate,
   });
 
   return {
@@ -22,12 +26,12 @@ export const handler = apiGatewayHandler(async (event) => {
   };
 });
 
-function queryParser(pathParameters: unknown) {
-  const schema = z.object({
-    professionalId: z.string(),
-    startDate: z.string(),
-    endDate: z.string(),
-  });
-
-  return schema.safeParse(pathParameters);
+function paramsParser(params: object) {
+  return z
+    .object({
+      professionalId: z.string(),
+      startDate: z.string(),
+      endDate: z.string(),
+    })
+    .safeParse(params);
 }

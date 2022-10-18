@@ -1,7 +1,13 @@
 export type AvailabilityByProfessionalResponse = {
-  blocks: {
-    durationInMinutes: number;
-    startDate: string;
-    endDate: string;
-  }[];
-};
+  calendarId: string;
+  startDate: string;
+  endDate: string;
+  durationInMinutes: number;
+  medicalAreaIds: string[];
+  interestAreaIds: string[];
+  conditionsOfService: {
+    minAge?: number;
+    maxAge?: number;
+    gender?: string;
+  };
+}[];

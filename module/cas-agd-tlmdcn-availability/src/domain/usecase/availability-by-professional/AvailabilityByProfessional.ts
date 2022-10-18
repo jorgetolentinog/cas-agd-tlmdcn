@@ -32,42 +32,60 @@ export class AvailabilityByProfessional {
   async execute(
     request: AvailabilityByProfessionalRequest
   ): Promise<AvailabilityByProfessionalResponse> {
-    const maxEndDateLocal = "2022-11-05";
+    const minStartDate = this.getMinStartDate();
+    const maxEndDate = this.getMaxEndDate();
 
-    const calendars = await this.getCalendars(
-      request.professionalId,
-      request.startDate,
-      request.endDate
-    );
+    if (request.startDate < minStartDate) {
+      throw new Error("start date must be greater than " + minStartDate);
+    }
 
-    const exceptions = await this.getExceptions(
-      request.professionalId,
-      request.startDate,
-      request.endDate
-    );
+    if (request.endDate > maxEndDate) {
+      throw new Error("end date must be less than " + maxEndDate);
+    }
 
-    const bookings = await this.getBookings(
-      request.professionalId,
-      request.startDate,
-      request.endDate
-    );
+    if (request.startDate > request.endDate) {
+      throw new Error("start date must be less than end date");
+    }
 
-    const preBookings = await this.getPreBookings(
-      request.professionalId,
-      request.startDate,
-      request.endDate
-    );
+    const [calendars, exceptions, bookings, preBookings] = await Promise.all([
+      this.getCalendars(
+        request.professionalId,
+        request.startDate,
+        request.endDate
+      ),
+      this.getExceptions(
+        request.professionalId,
+        request.startDate,
+        request.endDate
+      ),
+      this.getBookings(
+        request.professionalId,
+        request.startDate,
+        request.endDate
+      ),
+      this.getPreBookings(
+        request.professionalId,
+        request.startDate,
+        request.endDate
+      ),
+    ]);
 
     const exceptionBlocks = this.getExceptionBlocks(exceptions);
 
-    let calendarBlocks: CalendarBlock[] = [];
-    for (const calendar of calendars) {
-      const calendarEndDate =
-        calendar.endDate > maxEndDateLocal ? maxEndDateLocal : calendar.endDate;
+    let response: AvailabilityByProfessionalResponse = [];
 
-      calendarBlocks = calendarBlocks.concat(
+    for (const calendar of calendars) {
+      const calendarStartDate =
+        request.startDate > calendar.startDate
+          ? request.startDate
+          : calendar.startDate;
+
+      const calendarEndDate =
+        calendar.endDate > request.endDate ? request.endDate : calendar.endDate;
+
+      response = response.concat(
         getCaledarBlocks({
-          startDate: calendar.startDate,
+          startDate: calendarStartDate,
           endDate: calendarEndDate,
           blockDurationInMinutes: calendar.blockDurationInMinutes,
           days: calendar.days,
@@ -86,13 +104,19 @@ export class AvailabilityByProfessional {
 
             return false;
           },
-        })
+        }).map((calendarBlock) => ({
+          calendarId: calendar.id,
+          startDate: calendarBlock.startDate,
+          endDate: calendarBlock.endDate,
+          durationInMinutes: calendarBlock.durationInMinutes,
+          conditionsOfService: calendar.conditionsOfService,
+          medicalAreaIds: calendar.medicalAreaIds,
+          interestAreaIds: calendar.interestAreaIds,
+        }))
       );
     }
 
-    return {
-      blocks: calendarBlocks,
-    };
+    return response;
   }
 
   async getCalendars(
@@ -271,5 +295,17 @@ export class AvailabilityByProfessional {
       props.freeBlock.endDate < props.colissionBlock.endDate;
 
     return isBlockInside || isStartBlockInside || isEndBlockInside;
+  }
+
+  getMinStartDate(): string {
+    return dayjs().tz(config.timezone).format("YYYY-MM-DD");
+  }
+
+  getMaxEndDate(): string {
+    return dayjs()
+      .tz(config.timezone)
+      .add(2, "month")
+      .endOf("month")
+      .format("YYYY-MM-DD");
   }
 }
